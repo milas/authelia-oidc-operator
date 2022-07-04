@@ -1,0 +1,6 @@
+domain: milas.dev
+layout:
+- go.kubebuilder.io/v3
+projectName: authelia-operator
+repo: github.com/milas/authelia-operator
+version: "3"
