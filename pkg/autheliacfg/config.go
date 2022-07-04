@@ -13,7 +13,7 @@ type OIDC struct {
 	//
 	// IssuerPrivateKey string `yaml:"issuer_private_key"`
 
-	AccessTokenLifespan Duration `yaml:"access_token_lifespan"`
+	AccessTokenLifespan Duration `yaml:"access_token_lifespan,omitempty"`
 
 	AuthorizeCodeLifespan Duration `yaml:"authorize_code_lifespan,omitempty"`
 

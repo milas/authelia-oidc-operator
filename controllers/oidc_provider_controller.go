@@ -50,6 +50,7 @@ type OIDCProviderReconciler struct {
 // +kubebuilder:rbac:groups=authelia.milas.dev,resources=oidcproviders,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=authelia.milas.dev,resources=oidcproviders/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=authelia.milas.dev,resources=oidcproviders/finalizers,verbs=update
+// +kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -96,6 +97,7 @@ func (r *OIDCProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, fmt.Errorf("failed to marshal oidc yaml for %s: %v", req.NamespacedName, err)
 	}
 
+	cfgSecretKey := client.ObjectKey{Namespace: req.Namespace, Name: fmt.Sprintf("%s-oidc", req.Name)}
 	var dest v1.Secret
 	if err := r.Client.Get(ctx, req.NamespacedName, &dest); err != nil {
 		if !errors.IsNotFound(err) {
@@ -103,8 +105,8 @@ func (r *OIDCProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		}
 		dest = v1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
-				Namespace: req.Namespace,
-				Name:      req.Name,
+				Namespace: cfgSecretKey.Namespace,
+				Name:      cfgSecretKey.Name,
 			},
 			Data: map[string][]byte{
 				autheliav1alpha1.OIDCConfigFilename: cfgYAML,

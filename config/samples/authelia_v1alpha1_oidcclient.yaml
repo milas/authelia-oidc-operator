@@ -3,7 +3,7 @@ kind: OIDCClient
 metadata:
   name: oidcclient-sample
   annotations:
-    authelia.milas.dev/oidc_provider: oidcprovider-sample
+    authelia.milas.dev/oidc-provider: oidcprovider-sample
 spec:
   id: myapp
   description: My Application
