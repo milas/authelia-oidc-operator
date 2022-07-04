@@ -1,76 +1,91 @@
-# authelia-operator
-// TODO(user): Add simple overview of use/purpose
+# authelia-oidc-operator
+Manage [OIDC]() clients for [Authelia](https://www.authelia.com/) SSO using Kubernetes CRDs.
+
+## Status
+⚠ **ALPHA** - APIs may change and test coverage is limited!
+
+- [x] `OIDCProvider` CRD
+- [x] `OIDCClient` CRD
+- [ ] Helm chart
+- [ ] Status updates on CRDs
 
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+Managing OIDC clients for Authelia in a Kubernetes cluster requires centralizing
+the config with (excellent!) default Helm chart.
+
+The `authelia-oidc-operator` makes it possible to create & manage OIDC clients
+using CRDs, which can live in the app namespace.
 
 ## Getting Started
-You’ll need a Kubernetes cluster to run against. You can use [KIND](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
-**Note:** Your controller will automatically use the current context in your kubeconfig file (i.e. whatever cluster `kubectl cluster-info` shows).
 
-### Running on the cluster
-1. Install Instances of Custom Resources:
+> ℹ️ There's currently no Helm chart available!
+> 
+> This is using the default kubebuilder deployment setup currently.
+> Manual intervention _will_ be required to migrate to a Helm-based install in the future.
 
-```sh
-kubectl apply -f config/samples/
-```
+1. Install CRDs
+    ```sh
+    kubectl apply \
+      -f https://raw.githubusercontent.com/milas/authelia-oidc-operator/main/config/crd/bases/authelia.milas.dev_oidcproviders.yaml \
+      -f https://raw.githubusercontent.com/milas/authelia-oidc-operator/main/config/crd/bases/authelia.milas.dev_oidcclients.yaml
+    ```
 
-2. Build and push your image to the location specified by `IMG`:
-	
-```sh
-make docker-build docker-push IMG=<some-registry>/authelia-operator:tag
-```
-	
-3. Deploy the controller to the cluster with the image specified by `IMG`:
+2. Deploy the controller to the cluster:
+    ```sh
+    IMG="ghcr.io/milas/authelia-oidc-operator:latest" make deploy
+    ```
 
-```sh
-make deploy IMG=<some-registry>/authelia-operator:tag
-```
+3. Create an `OIDCProvider`:
 
-### Uninstall CRDs
-To delete the CRDs from the cluster:
+    **`oidc_provider.yaml`**
+    ```yaml
+    apiVersion: authelia.milas.dev/v1alpha1
+    kind: OIDCProvider
+    metadata:
+      name: default
+      namespace: authelia
+    spec:
+      cors:
+        allowed_origins:
+          - https://example.com
+    ```
+    ```sh
+    kubectl apply -f ./oidc_provider.yaml
+    ```
+4. Create an `OIDCClient`:
 
-```sh
-make uninstall
-```
+    **`oidc_client.yaml`**
+    ```yaml
+    apiVersion: authelia.milas.dev/v1alpha1
+    kind: OIDCClient
+    metadata:
+      name: my-client
+      namespace: my-app
+      annotations:
+        authelia.milas.dev/oidc-provider: authelia/default
+    spec:
+      id: myapp
+      description: My Application
+      secret_ref:
+        key: 'OIDC_CLIENT_SECRET'
+        name: 'my-app'
+      public: false
+      authorization_policy: two_factor
+      redirect_uris:
+        - https://oidc.example.com:8080/oauth2/callback
+    ```
+    ```sh
+    kubectl apply -f ./oidc_client.yaml
+    ```
 
-### Undeploy controller
-UnDeploy the controller to the cluster:
-
-```sh
-make undeploy
-```
-
-## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
+5. Modify Authelia Deployment to find OIDC config
+    > COMING SOON!
 
 ### How it works
 This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/)
 
 It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/) 
 which provides a reconcile function responsible for synchronizing resources untile the desired state is reached on the cluster 
-
-### Test It Out
-1. Install the CRDs into the cluster:
-
-```sh
-make install
-```
-
-2. Run your controller (this will run in the foreground, so switch to a new terminal if you want to leave it running):
-
-```sh
-make run
-```
-
-**NOTE:** You can also run this in one step by running: `make install run`
-
-### Modifying the API definitions
-If you are editing the API definitions, generate the manifests such as CRs or CRDs using:
-
-```sh
-make manifests
-```
 
 **NOTE:** Run `make --help` for more information on all potential `make` targets
 
