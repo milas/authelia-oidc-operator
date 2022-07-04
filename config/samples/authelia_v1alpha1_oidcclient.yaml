@@ -2,5 +2,33 @@ apiVersion: authelia.milas.dev/v1alpha1
 kind: OidcClient
 metadata:
   name: oidcclient-sample
+  annotations:
+    authelia.milas.dev/oidc_provider: oidcprovider-sample
 spec:
-  # TODO(user): Add fields here
+  id: myapp
+  description: My Application
+  secret_ref:
+    key: 'secret'
+    name: 'myapp-oidc'
+  sector_identifier: ''
+  public: false
+  authorization_policy: two_factor
+  preconfigured_consent_duration: 0s
+  audience: []
+  scopes:
+    - openid
+    - groups
+    - email
+    - profile
+  redirect_uris:
+    - https://oidc.example.com:8080/oauth2/callback
+  grant_types:
+    - refresh_token
+    - authorization_code
+  response_types:
+    - code
+  response_modes:
+    - form_post
+    - query
+    - fragment
+  userinfo_signing_algorithm: none

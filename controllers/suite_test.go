@@ -1,5 +1,5 @@
 /*
-Copyright 2022.
+Copyright 2022 Milas Bowman
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	autheliav1alpha1 "github.com/milas/authelia-operator/api/v1alpha1"
-	//+kubebuilder:scaffold:imports
+	autheliav1alpha1 "github.com/milas/authelia-oidc-operator/api/v1alpha1"
+	// +kubebuilder:scaffold:imports
 )
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
@@ -67,7 +67,7 @@ var _ = BeforeSuite(func() {
 	err = autheliav1alpha1.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())
 
-	//+kubebuilder:scaffold:scheme
+	// +kubebuilder:scaffold:scheme
 
 	k8sClient, err = client.New(cfg, client.Options{Scheme: scheme.Scheme})
 	Expect(err).NotTo(HaveOccurred())

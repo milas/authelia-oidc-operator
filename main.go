@@ -1,5 +1,5 @@
 /*
-Copyright 2022.
+Copyright 2022 Milas Bowman
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -31,9 +31,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	autheliav1alpha1 "github.com/milas/authelia-operator/api/v1alpha1"
-	"github.com/milas/authelia-operator/controllers"
-	//+kubebuilder:scaffold:imports
+	autheliav1alpha1 "github.com/milas/authelia-oidc-operator/api/v1alpha1"
+	"github.com/milas/authelia-oidc-operator/controllers"
+	// +kubebuilder:scaffold:imports
 )
 
 var (
@@ -45,7 +45,7 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
 	utilruntime.Must(autheliav1alpha1.AddToScheme(scheme))
-	//+kubebuilder:scaffold:scheme
+	// +kubebuilder:scaffold:scheme
 }
 
 func main() {
@@ -96,7 +96,14 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "OidcClient")
 		os.Exit(1)
 	}
-	//+kubebuilder:scaffold:builder
+	if err = (&controllers.OidcProviderReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "OidcProvider")
+		os.Exit(1)
+	}
+	// +kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up health check")

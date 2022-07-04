@@ -1,0 +1,24 @@
+# permissions for end users to edit oidcproviders.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: oidcprovider-editor-role
+rules:
+- apiGroups:
+  - authelia.milas.dev
+  resources:
+  - oidcproviders
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - authelia.milas.dev
+  resources:
+  - oidcproviders/status
+  verbs:
+  - get

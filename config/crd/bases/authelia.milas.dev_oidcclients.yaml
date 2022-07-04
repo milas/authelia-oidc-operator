@@ -1,0 +1,163 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.9.0
+  creationTimestamp: null
+  name: oidcclients.authelia.milas.dev
+spec:
+  group: authelia.milas.dev
+  names:
+    kind: OidcClient
+    listKind: OidcClientList
+    plural: oidcclients
+    singular: oidcclient
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.description
+      name: Description
+      type: string
+    - jsonPath: .spec.id
+      name: Client ID
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: OidcClient is the Schema for the oidcclients API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: OidcClientSpec defines the desired state of OidcClient
+            properties:
+              audience:
+                items:
+                  type: string
+                type: array
+              authorization_policy:
+                description: AuthorizationPolicy for the client.
+                enum:
+                - one_factor
+                - two_factor
+                type: string
+              description:
+                description: "Description is a friendly name shown for the client
+                  in the UI. \n If not specified, will default to the same as the
+                  ID."
+                type: string
+              grant_types:
+                description: "GrantTypes this client can return. \n It is recommended
+                  that this isn’t configured at this time unless you know what you’re
+                  doing."
+                items:
+                  enum:
+                  - implicit
+                  - refresh_token
+                  - authorization_code
+                  - password
+                  - client_credentials
+                  type: string
+                type: array
+              id:
+                description: "ID is the Client ID for this client. \n It must exactly
+                  match the Client ID configured in the application consuming this
+                  client."
+                type: string
+              preconfigured_consent_duration:
+                type: string
+              public:
+                description: Public enables the public client type for this client.
+                type: boolean
+              redirect_uris:
+                description: RedirectURIs to permit client callbacks to.
+                items:
+                  type: string
+                minItems: 1
+                type: array
+              response_modes:
+                description: "ResponseModes this client can return. \n It is recommended
+                  that this isn’t configured at this time unless you know what you’re
+                  doing."
+                items:
+                  enum:
+                  - form_post
+                  - query
+                  - fragment
+                  type: string
+                type: array
+              response_types:
+                description: "ResponseTypes this client can return. \n It is recommended
+                  that this isn’t configured at this time unless you know what you’re
+                  doing."
+                items:
+                  enum:
+                  - code
+                  - code id_token
+                  - id_token
+                  - token id_token
+                  - token
+                  - token id_token code
+                  type: string
+                type: array
+              scopes:
+                description: "Scopes to allow the client to consume. \n See: https://www.authelia.com/integration/openid-connect/introduction/#scope-definitions"
+                items:
+                  enum:
+                  - openid
+                  - offline_access
+                  - groups
+                  - email
+                  - profile
+                  type: string
+                type: array
+              secret_ref:
+                description: SecretRef refers to a Kubernetes v1.Secret that contains
+                  the shared secret between Authelia and the application consuming
+                  this client in the specified key.
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              sector_identifier:
+                type: string
+              userinfo_signing_algorithm:
+                description: UserinfoSigningAlgorithm is the algorithm used to sign
+                  the userinfo endpoint responses.
+                enum:
+                - none
+                - RS256
+                type: string
+            required:
+            - id
+            - redirect_uris
+            type: object
+          status:
+            description: OidcClientStatus defines the observed state of OidcClient
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

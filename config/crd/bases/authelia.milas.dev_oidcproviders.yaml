@@ -1,0 +1,110 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.9.0
+  creationTimestamp: null
+  name: oidcproviders.authelia.milas.dev
+spec:
+  group: authelia.milas.dev
+  names:
+    kind: OidcProvider
+    listKind: OidcProviderList
+    plural: oidcproviders
+    singular: oidcprovider
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: OidcProvider is the Schema for the oidcproviders API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: OidcProviderSpec defines the desired state of OidcProvider
+            properties:
+              access_token_lifespan:
+                type: string
+              authorize_code_lifespan:
+                type: string
+              cors:
+                properties:
+                  allowed_origins:
+                    items:
+                      type: string
+                    type: array
+                  allowed_origins_from_client_redirect_uris:
+                    type: boolean
+                  endpoints:
+                    description: "Endpoints to configure with cross-origin resource
+                      sharing headers. \n It is recommended that the userinfo option
+                      is at least in this list."
+                    enum:
+                    - authorization
+                    - token
+                    - revocation
+                    - introspection
+                    - userinfo
+                    items:
+                      type: string
+                    type: array
+                type: object
+              enable_client_debug_messages:
+                type: boolean
+              enforce_pkce:
+                description: EnforcePKCE sets the Proof Key for Code Exchange enforcement
+                  policy.
+                enum:
+                - never
+                - public_clients_only
+                - always
+                type: string
+              hmac_secret_ref:
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              id_token_lifespan:
+                type: string
+              issuer_private_key_ref:
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              refresh_token_lifespan:
+                type: string
+            type: object
+          status:
+            description: OidcProviderStatus defines the observed state of OidcProvider
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

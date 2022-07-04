@@ -1,0 +1,59 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - authelia.milas.dev
+  resources:
+  - oidcclients
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - authelia.milas.dev
+  resources:
+  - oidcclients/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - authelia.milas.dev
+  resources:
+  - oidcclients/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - authelia.milas.dev
+  resources:
+  - oidcproviders
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - authelia.milas.dev
+  resources:
+  - oidcproviders/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - authelia.milas.dev
+  resources:
+  - oidcproviders/status
+  verbs:
+  - get
+  - patch
+  - update

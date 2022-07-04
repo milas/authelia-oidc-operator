@@ -1,0 +1,13 @@
+apiVersion: authelia.milas.dev/v1alpha1
+kind: OidcProvider
+metadata:
+  name: oidcprovider-sample
+spec:
+  cors:
+    endpoints:
+      - authorization
+      - token
+      - revocation
+      - introspection
+    allowed_origins:
+      - https://example.com

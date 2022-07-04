@@ -1,5 +1,5 @@
 /*
-Copyright 2022.
+Copyright 2022 Milas Bowman
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,18 +24,20 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	autheliav1alpha1 "github.com/milas/authelia-operator/api/v1alpha1"
+	autheliav1alpha1 "github.com/milas/authelia-oidc-operator/api/v1alpha1"
 )
 
 // OidcClientReconciler reconciles a OidcClient object
 type OidcClientReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
+
+	controllerNamespace string
 }
 
-//+kubebuilder:rbac:groups=authelia.milas.dev,resources=oidcclients,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=authelia.milas.dev,resources=oidcclients/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=authelia.milas.dev,resources=oidcclients/finalizers,verbs=update
+// +kubebuilder:rbac:groups=authelia.milas.dev,resources=oidcclients,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=authelia.milas.dev,resources=oidcclients/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=authelia.milas.dev,resources=oidcclients/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -49,8 +51,6 @@ type OidcClientReconciler struct {
 func (r *OidcClientReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
-	// TODO(user): your logic here
-
 	return ctrl.Result{}, nil
 }
 
@@ -59,4 +59,11 @@ func (r *OidcClientReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&autheliav1alpha1.OidcClient{}).
 		Complete(r)
+}
+
+func secretName(key client.ObjectKey) string {
+	if key.Namespace == key.Name {
+		return "oidc" + "-" + key.Name
+	}
+	return "oidc" + "-" + key.Namespace + "-" + key.Name
 }
