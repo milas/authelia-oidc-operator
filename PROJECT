@@ -10,7 +10,7 @@ resources:
   controller: true
   domain: milas.dev
   group: authelia
-  kind: OidcClient
+  kind: OIDCClient
   path: github.com/milas/authelia-oidc-operator/api/v1alpha1
   version: v1alpha1
 - api:
@@ -19,7 +19,7 @@ resources:
   controller: true
   domain: milas.dev
   group: authelia
-  kind: OidcProvider
+  kind: OIDCProvider
   path: github.com/milas/authelia-oidc-operator/api/v1alpha1
   version: v1alpha1
 version: "3"

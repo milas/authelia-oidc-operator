@@ -9,8 +9,8 @@ metadata:
 spec:
   group: authelia.milas.dev
   names:
-    kind: OidcProvider
-    listKind: OidcProviderList
+    kind: OIDCProvider
+    listKind: OIDCProviderList
     plural: oidcproviders
     singular: oidcprovider
   scope: Namespaced
@@ -18,7 +18,7 @@ spec:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: OidcProvider is the Schema for the oidcproviders API
+        description: OIDCProvider is the Schema for the oidcproviders API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -33,7 +33,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: OidcProviderSpec defines the desired state of OidcProvider
+            description: OIDCProviderSpec defines the desired state of OIDCProvider
             properties:
               access_token_lifespan:
                 type: string
@@ -101,7 +101,7 @@ spec:
                 type: string
             type: object
           status:
-            description: OidcProviderStatus defines the observed state of OidcProvider
+            description: OIDCProviderStatus defines the observed state of OIDCProvider
             type: object
         type: object
     served: true

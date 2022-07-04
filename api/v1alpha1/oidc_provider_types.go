@@ -20,8 +20,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// OidcProviderSpec defines the desired state of OidcProvider
-type OidcProviderSpec struct {
+// OIDCProviderSpec defines the desired state of OIDCProvider
+type OIDCProviderSpec struct {
 	// +optional
 	HmacSecretRef SecretReference `json:"hmac_secret_ref"`
 
@@ -61,8 +61,8 @@ type CORS struct {
 	AllowedOriginsFromClientRedirectURIs bool `json:"allowed_origins_from_client_redirect_uris,omitempty"`
 }
 
-// OidcProviderStatus defines the observed state of OidcProvider
-type OidcProviderStatus struct {
+// OIDCProviderStatus defines the observed state of OIDCProvider
+type OIDCProviderStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 }
@@ -70,24 +70,24 @@ type OidcProviderStatus struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 
-// OidcProvider is the Schema for the oidcproviders API
-type OidcProvider struct {
+// OIDCProvider is the Schema for the oidcproviders API
+type OIDCProvider struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   OidcProviderSpec   `json:"spec,omitempty"`
-	Status OidcProviderStatus `json:"status,omitempty"`
+	Spec   OIDCProviderSpec   `json:"spec,omitempty"`
+	Status OIDCProviderStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
 
-// OidcProviderList contains a list of OidcProvider
-type OidcProviderList struct {
+// OIDCProviderList contains a list of OIDCProvider
+type OIDCProviderList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []OidcProvider `json:"items"`
+	Items           []OIDCProvider `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&OidcProvider{}, &OidcProviderList{})
+	SchemeBuilder.Register(&OIDCProvider{}, &OIDCProviderList{})
 }

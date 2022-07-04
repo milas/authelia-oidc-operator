@@ -75,8 +75,8 @@ type OIDCClient struct {
 }
 
 func NewOIDC(
-	provider *autheliav1alpha1.OidcProvider,
-	clients []autheliav1alpha1.OidcClient,
+	provider *autheliav1alpha1.OIDCProvider,
+	clients []autheliav1alpha1.OIDCClient,
 	secrets []v1.Secret,
 ) (OIDC, error) {
 	cfgClients := make([]OIDCClient, len(clients))
@@ -109,7 +109,7 @@ func NewCORS(in autheliav1alpha1.CORS) CORS {
 	}
 }
 
-func NewOIDCClient(in *autheliav1alpha1.OidcClient, secrets []v1.Secret) (OIDCClient, error) {
+func NewOIDCClient(in *autheliav1alpha1.OIDCClient, secrets []v1.Secret) (OIDCClient, error) {
 	clientSecret, err := SecretRefToStringValue(in, in.Spec.SecretRef, secrets)
 	if err != nil {
 		return OIDCClient{}, fmt.Errorf("could not get client secret for %s: %v", in.Spec.ID, err)

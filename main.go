@@ -89,18 +89,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.OidcClientReconciler{
+	if err = (&controllers.OIDCClientReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "OidcClient")
+		setupLog.Error(err, "unable to create controller", "controller", "OIDCClient")
 		os.Exit(1)
 	}
-	if err = (&controllers.OidcProviderReconciler{
+	if err = (&controllers.OIDCProviderReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "OidcProvider")
+		setupLog.Error(err, "unable to create controller", "controller", "OIDCProvider")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder

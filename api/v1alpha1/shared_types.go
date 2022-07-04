@@ -1,8 +1,8 @@
 package v1alpha1
 
-const OidcProviderAnnotation = "authelia.milas.dev/oidc_provider"
+const OIDCProviderAnnotation = "authelia.milas.dev/oidc-provider"
 
-const OidcConfigFilename = "authelia.oidc.yaml"
+const OIDCConfigFilename = "authelia.oidc.yaml"
 
 type SecretReference struct {
 	Namespace string `json:"namespace,omitempty"`

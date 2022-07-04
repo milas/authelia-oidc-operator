@@ -20,8 +20,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// OidcClientSpec defines the desired state of OidcClient
-type OidcClientSpec struct {
+// OIDCClientSpec defines the desired state of OIDCClient
+type OIDCClientSpec struct {
 	// ID is the Client ID for this client.
 	//
 	// It must exactly match the Client ID configured in the application
@@ -110,38 +110,38 @@ const (
 	AuthorizationPolicyTwoFactor AuthorizationPolicy = "two_factor"
 )
 
-// OidcClientStatus defines the observed state of OidcClient
-type OidcClientStatus struct {
+// OIDCClientStatus defines the observed state of OIDCClient
+type OIDCClientStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 }
 
-// OidcClient is the Schema for the oidcclients API
+// OIDCClient is the Schema for the oidcclients API
 //
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Description",type=string,JSONPath=`.spec.description`
 // +kubebuilder:printcolumn:name="Client ID",type=string,JSONPath=`.spec.id`
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
-type OidcClient struct {
+type OIDCClient struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   OidcClientSpec   `json:"spec,omitempty"`
-	Status OidcClientStatus `json:"status,omitempty"`
+	Spec   OIDCClientSpec   `json:"spec,omitempty"`
+	Status OIDCClientStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
 
-// OidcClientList contains a list of OidcClient
-type OidcClientList struct {
+// OIDCClientList contains a list of OIDCClient
+type OIDCClientList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []OidcClient `json:"items"`
+	Items           []OIDCClient `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&OidcClient{}, &OidcClientList{})
+	SchemeBuilder.Register(&OIDCClient{}, &OIDCClientList{})
 }
 
 // +kubebuilder:validation:Enum=openid;offline_access;groups;email;profile

@@ -39,12 +39,12 @@ import (
 	"github.com/milas/authelia-oidc-operator/pkg/autheliacfg"
 )
 
-// OidcProviderReconciler reconciles a OidcProvider object
-type OidcProviderReconciler struct {
+// OIDCProviderReconciler reconciles a OIDCProvider object
+type OIDCProviderReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 
-	defaultOidcProvider *client.ObjectKey
+	defaultOIDCProvider *client.ObjectKey
 }
 
 // +kubebuilder:rbac:groups=authelia.milas.dev,resources=oidcproviders,verbs=get;list;watch;create;update;patch;delete
@@ -54,16 +54,16 @@ type OidcProviderReconciler struct {
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the OidcProvider object against the actual cluster state, and then
+// the OIDCProvider object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.12.1/pkg/reconcile
-func (r *OidcProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *OIDCProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	// logger := log.FromContext(ctx)
 
-	var provider autheliav1alpha1.OidcProvider
+	var provider autheliav1alpha1.OIDCProvider
 	if err := r.Client.Get(ctx, req.NamespacedName, &provider); err != nil {
 		if errors.IsNotFound(err) {
 			// TODO(milas): tear down secret
@@ -73,7 +73,7 @@ func (r *OidcProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	// TODO(milas): ingress-nginx sets up a special lister to handle "indexing"
 	// 	by annotation - listing across all namespaces is not great
-	var oidcClientList autheliav1alpha1.OidcClientList
+	var oidcClientList autheliav1alpha1.OIDCClientList
 	if err := r.Client.List(ctx, &oidcClientList); err != nil {
 		return ctrl.Result{}, err
 	}
@@ -107,7 +107,7 @@ func (r *OidcProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request
 				Name:      req.Name,
 			},
 			Data: map[string][]byte{
-				autheliav1alpha1.OidcConfigFilename: cfgYAML,
+				autheliav1alpha1.OIDCConfigFilename: cfgYAML,
 			},
 		}
 		if err := controllerutil.SetControllerReference(&provider, &dest, r.Scheme); err != nil {
@@ -116,8 +116,8 @@ func (r *OidcProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if err := r.Client.Create(ctx, &dest); err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to create secret for %s: %v", req.NamespacedName, err)
 		}
-	} else if !bytes.Equal(dest.Data[autheliav1alpha1.OidcConfigFilename], cfgYAML) {
-		dest.Data[autheliav1alpha1.OidcConfigFilename] = cfgYAML
+	} else if !bytes.Equal(dest.Data[autheliav1alpha1.OIDCConfigFilename], cfgYAML) {
+		dest.Data[autheliav1alpha1.OIDCConfigFilename] = cfgYAML
 
 		if err := r.Client.Update(ctx, &dest); err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to update secret for %s: %v", req.NamespacedName, err)
@@ -128,7 +128,7 @@ func (r *OidcProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *OidcProviderReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *OIDCProviderReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	secretNameExtractFunc := func(obj client.Object) []string {
 		return []string{obj.GetName()}
 	}
@@ -138,10 +138,10 @@ func (r *OidcProviderReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	}
 
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&autheliav1alpha1.OidcProvider{}).
+		For(&autheliav1alpha1.OIDCProvider{}).
 		Owns(&v1.Secret{}).
 		Watches(
-			&source.Kind{Type: &autheliav1alpha1.OidcClient{}},
+			&source.Kind{Type: &autheliav1alpha1.OIDCClient{}},
 			handler.EnqueueRequestsFromMapFunc(func(object client.Object) []reconcile.Request {
 				providerKey := r.providerForClient(object)
 				if providerKey == nil {
@@ -152,10 +152,10 @@ func (r *OidcProviderReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (r *OidcProviderReconciler) providerForClient(obj client.Object) *client.ObjectKey {
-	provider := obj.GetAnnotations()[autheliav1alpha1.OidcProviderAnnotation]
+func (r *OIDCProviderReconciler) providerForClient(obj client.Object) *client.ObjectKey {
+	provider := obj.GetAnnotations()[autheliav1alpha1.OIDCProviderAnnotation]
 	if provider == "" {
-		return r.defaultOidcProvider
+		return r.defaultOIDCProvider
 	}
 
 	var namespace, name string
@@ -174,10 +174,10 @@ func (r *OidcProviderReconciler) providerForClient(obj client.Object) *client.Ob
 	}
 }
 
-func (r *OidcProviderReconciler) fetchSecrets(
+func (r *OIDCProviderReconciler) fetchSecrets(
 	ctx context.Context,
-	_ *autheliav1alpha1.OidcProvider,
-	clients []autheliav1alpha1.OidcClient,
+	_ *autheliav1alpha1.OIDCProvider,
+	clients []autheliav1alpha1.OIDCClient,
 ) ([]v1.Secret, error) {
 	var secretListOpts []client.ListOption
 	for _, c := range clients {

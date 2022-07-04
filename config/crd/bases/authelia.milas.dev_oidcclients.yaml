@@ -9,8 +9,8 @@ metadata:
 spec:
   group: authelia.milas.dev
   names:
-    kind: OidcClient
-    listKind: OidcClientList
+    kind: OIDCClient
+    listKind: OIDCClientList
     plural: oidcclients
     singular: oidcclient
   scope: Namespaced
@@ -28,7 +28,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: OidcClient is the Schema for the oidcclients API
+        description: OIDCClient is the Schema for the oidcclients API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -43,7 +43,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: OidcClientSpec defines the desired state of OidcClient
+            description: OIDCClientSpec defines the desired state of OIDCClient
             properties:
               audience:
                 items:
@@ -154,7 +154,7 @@ spec:
             - redirect_uris
             type: object
           status:
-            description: OidcClientStatus defines the observed state of OidcClient
+            description: OIDCClientStatus defines the observed state of OIDCClient
             type: object
         type: object
     served: true

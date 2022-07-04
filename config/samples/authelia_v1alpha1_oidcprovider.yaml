@@ -1,5 +1,5 @@
 apiVersion: authelia.milas.dev/v1alpha1
-kind: OidcProvider
+kind: OIDCProvider
 metadata:
   name: oidcprovider-sample
 spec:

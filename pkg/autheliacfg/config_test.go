@@ -15,12 +15,12 @@ import (
 )
 
 func TestNewOIDC(t *testing.T) {
-	provider := autheliav1alpha1.OidcProvider{
+	provider := autheliav1alpha1.OIDCProvider{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "my-ns",
 			Name:      "my-provider",
 		},
-		Spec: autheliav1alpha1.OidcProviderSpec{
+		Spec: autheliav1alpha1.OIDCProviderSpec{
 			AccessTokenLifespan:       metav1.Duration{Duration: 1 * time.Hour},
 			AuthorizeCodeLifespan:     metav1.Duration{Duration: 1 * time.Minute},
 			IDTokenLifespan:           metav1.Duration{Duration: 1 * time.Hour},
@@ -40,12 +40,12 @@ func TestNewOIDC(t *testing.T) {
 		},
 	}
 
-	client := autheliav1alpha1.OidcClient{
+	client := autheliav1alpha1.OIDCClient{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "other-ns",
 			Name:      "my-client",
 		},
-		Spec: autheliav1alpha1.OidcClientSpec{
+		Spec: autheliav1alpha1.OIDCClientSpec{
 			ID:          "myapp",
 			Description: "My Application",
 			SecretRef: autheliav1alpha1.SecretReference{
@@ -94,7 +94,7 @@ func TestNewOIDC(t *testing.T) {
 
 	oidc, err := NewOIDC(
 		&provider,
-		[]autheliav1alpha1.OidcClient{client},
+		[]autheliav1alpha1.OIDCClient{client},
 		[]v1.Secret{secret},
 	)
 	require.NoError(t, err, "Failed to create OIDC config")

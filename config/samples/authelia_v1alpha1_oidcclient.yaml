@@ -1,5 +1,5 @@
 apiVersion: authelia.milas.dev/v1alpha1
-kind: OidcClient
+kind: OIDCClient
 metadata:
   name: oidcclient-sample
   annotations:
