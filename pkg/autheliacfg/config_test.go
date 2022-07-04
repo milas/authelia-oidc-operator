@@ -7,14 +7,13 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"gopkg.in/yaml.v3"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	autheliav1alpha1 "github.com/milas/authelia-oidc-operator/api/v1alpha1"
 )
 
-func TestNewOIDC(t *testing.T) {
+func TestMarshalConfig(t *testing.T) {
 	provider := autheliav1alpha1.OIDCProvider{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "my-ns",
@@ -99,13 +98,14 @@ func TestNewOIDC(t *testing.T) {
 	)
 	require.NoError(t, err, "Failed to create OIDC config")
 
-	cfg, err := yaml.Marshal(oidc)
+	// cfg, err := yaml.Marshal(oidc)
+	cfg, err := MarshalConfig(oidc)
 	require.NoError(t, err, "Failed to marshal OIDC config as YAML")
 
 	expected := string(loadTestData(t, "oidc.yaml"))
 	actual := string(cfg)
 	require.YAMLEq(t, expected, actual,
-		"Marshaled config did not match expected output\n%s", expected)
+		"Marshaled config did not match expected output. Raw:\n%s", actual)
 }
 
 func loadTestData(t testing.TB, path ...string) []byte {

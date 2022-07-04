@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"strings"
 
-	"gopkg.in/yaml.v3"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -85,13 +84,13 @@ func (r *OIDCProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, fmt.Errorf("failed to fetch secrets for %s: %v", req.NamespacedName, err)
 	}
 
-	cfg, err := autheliacfg.NewOIDC(&provider, oidcClientList.Items, secrets)
+	oidcCfg, err := autheliacfg.NewOIDC(&provider, oidcClientList.Items, secrets)
 	if err != nil {
 		// TODO(milas): update status
 		return ctrl.Result{}, fmt.Errorf("failed to create oidc config for %s: %v", req.NamespacedName, err)
 	}
 
-	cfgYAML, err := yaml.Marshal(cfg)
+	cfgYAML, err := autheliacfg.MarshalConfig(oidcCfg)
 	if err != nil {
 		// TODO(milas): update status
 		return ctrl.Result{}, fmt.Errorf("failed to marshal oidc yaml for %s: %v", req.NamespacedName, err)

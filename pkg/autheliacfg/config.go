@@ -3,10 +3,25 @@ package autheliacfg
 import (
 	"fmt"
 
+	"gopkg.in/yaml.v3"
 	v1 "k8s.io/api/core/v1"
 
 	autheliav1alpha1 "github.com/milas/authelia-oidc-operator/api/v1alpha1"
 )
+
+func MarshalConfig(oidc OIDC) ([]byte, error) {
+	var cfg struct {
+		IdentityProviders struct {
+			OIDC OIDC `yaml:"oidc"`
+		} `yaml:"identity_providers"`
+	}
+	cfg.IdentityProviders.OIDC = oidc
+	return yaml.Marshal(cfg)
+}
+
+type IdentityProviders struct {
+	OIDC *OIDC `yaml:"oidc,omitempty"`
+}
 
 type OIDC struct {
 	// HMACSecret string `yaml:"hmac_secret"`
