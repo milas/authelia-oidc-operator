@@ -99,7 +99,7 @@ func (r *OIDCProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	cfgSecretKey := client.ObjectKey{Namespace: req.Namespace, Name: fmt.Sprintf("%s-oidc", req.Name)}
 	var dest v1.Secret
-	if err := r.Client.Get(ctx, req.NamespacedName, &dest); err != nil {
+	if err := r.Client.Get(ctx, cfgSecretKey, &dest); err != nil {
 		if !errors.IsNotFound(err) {
 			return ctrl.Result{}, err
 		}
