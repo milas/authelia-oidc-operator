@@ -1,0 +1,24 @@
+# permissions for end users to edit oidcclients.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: oidcclient-editor-role
+rules:
+- apiGroups:
+  - authelia.milas.dev
+  resources:
+  - oidcclients
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - authelia.milas.dev
+  resources:
+  - oidcclients/status
+  verbs:
+  - get

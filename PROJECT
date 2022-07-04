@@ -3,4 +3,14 @@ layout:
 - go.kubebuilder.io/v3
 projectName: authelia-operator
 repo: github.com/milas/authelia-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: milas.dev
+  group: authelia
+  kind: OidcClient
+  path: github.com/milas/authelia-operator/api/v1alpha1
+  version: v1alpha1
 version: "3"

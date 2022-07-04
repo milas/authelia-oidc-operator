@@ -1,0 +1,20 @@
+# permissions for end users to view oidcclients.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: oidcclient-viewer-role
+rules:
+- apiGroups:
+  - authelia.milas.dev
+  resources:
+  - oidcclients
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - authelia.milas.dev
+  resources:
+  - oidcclients/status
+  verbs:
+  - get
