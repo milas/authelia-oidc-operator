@@ -124,12 +124,29 @@ func NewOIDCClient(in *autheliav1alpha1.OidcClient, secrets []v1.Secret) (OIDCCl
 		AuthorizationPolicy:          string(in.Spec.AuthorizationPolicy),
 		PreconfiguredConsentDuration: Duration(in.Spec.PreconfiguredConsentDuration.Duration),
 		Audience:                     in.Spec.Audience,
-		// Scopes:                       in.Spec.Scopes,
-		RedirectURIs: in.Spec.RedirectURIs,
-		// GrantTypes:                   in.Spec.GrantTypes,
-		// ResponseTypes:                in.Spec.ResponseTypes,
-		// ResponseModes:                in.Spec.ResponseModes,
-		UserinfoSigningAlgorithm: in.Spec.UserinfoSigningAlgorithm,
+		RedirectURIs:                 in.Spec.RedirectURIs,
+		UserinfoSigningAlgorithm:     in.Spec.UserinfoSigningAlgorithm,
 	}
+
+	c.Scopes = make([]string, len(in.Spec.Scopes))
+	for i := range in.Spec.Scopes {
+		c.Scopes[i] = string(in.Spec.Scopes[i])
+	}
+
+	c.GrantTypes = make([]string, len(in.Spec.GrantTypes))
+	for i := range in.Spec.GrantTypes {
+		c.GrantTypes[i] = string(in.Spec.GrantTypes[i])
+	}
+
+	c.ResponseTypes = make([]string, len(in.Spec.ResponseTypes))
+	for i := range in.Spec.ResponseTypes {
+		c.ResponseTypes[i] = string(in.Spec.ResponseTypes[i])
+	}
+
+	c.ResponseModes = make([]string, len(in.Spec.ResponseModes))
+	for i := range in.Spec.ResponseModes {
+		c.ResponseModes[i] = string(in.Spec.ResponseModes[i])
+	}
+
 	return c, nil
 }
