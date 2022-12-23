@@ -1,0 +1,6 @@
+apiVersion: authelia.milas.dev/v1alpha2
+kind: OIDCClient
+metadata:
+  name: oidcclient-sample
+spec:
+  # TODO(user): Add fields here

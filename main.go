@@ -32,6 +32,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	autheliav1alpha1 "github.com/milas/authelia-oidc-operator/api/v1alpha1"
+	autheliav1alpha2 "github.com/milas/authelia-oidc-operator/api/v1alpha2"
 	"github.com/milas/authelia-oidc-operator/controllers"
 	// +kubebuilder:scaffold:imports
 )
@@ -45,6 +46,7 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
 	utilruntime.Must(autheliav1alpha1.AddToScheme(scheme))
+	utilruntime.Must(autheliav1alpha2.AddToScheme(scheme))
 	// +kubebuilder:scaffold:scheme
 }
 
@@ -101,6 +103,10 @@ func main() {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "OIDCProvider")
+		os.Exit(1)
+	}
+	if err = (&autheliav1alpha2.OIDCClient{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "OIDCClient")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder

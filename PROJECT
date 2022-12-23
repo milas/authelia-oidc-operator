@@ -22,4 +22,15 @@ resources:
   kind: OIDCProvider
   path: github.com/milas/authelia-oidc-operator/api/v1alpha1
   version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: milas.dev
+  group: authelia
+  kind: OIDCClient
+  path: github.com/milas/authelia-oidc-operator/api/v1alpha2
+  version: v1alpha2
+  webhooks:
+    conversion: true
+    webhookVersion: v1
 version: "3"
