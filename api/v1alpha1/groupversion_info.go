@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 // Package v1alpha1 contains API Schema definitions for the authelia v1alpha1 API group
-//+kubebuilder:object:generate=true
+// +kubebuilder:object:generate=true
 // +groupName=authelia.milas.dev
 package v1alpha1
 
