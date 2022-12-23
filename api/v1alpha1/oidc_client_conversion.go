@@ -10,13 +10,22 @@ var _ conversion.Convertible = &OIDCClient{}
 func (src *OIDCClient) ConvertTo(dstRaw conversion.Hub) error {
 	dst := dstRaw.(*v1alpha2.OIDCClient)
 	dst.ObjectMeta = *src.ObjectMeta.DeepCopy()
-	dst.ObjectMeta.Annotations["authelia.milas.dev/oidc-client-id"] = src.Spec.ID
+	if dst.ObjectMeta.Annotations == nil {
+		dst.ObjectMeta.Annotations = make(map[string]string)
+	}
+	dst.ObjectMeta.Annotations["conversion.authelia.milas.dev/oidc-client-id"] = src.Spec.ID
+
+	secretRefClientIDKey := dst.ObjectMeta.Annotations["conversion.authelia.milas.dev/secret-ref-client-id"]
+	delete(dst.ObjectMeta.Annotations, "conversion.authelia.milas.dev/secret-ref-client-id")
 
 	dst.Spec.Description = src.Spec.Description
 	dst.Spec.SecretRef = v1alpha2.SecretReference{
 		Namespace: src.Spec.SecretRef.Namespace,
 		Name:      src.Spec.SecretRef.Name,
-		Key:       src.Spec.SecretRef.Key,
+		Keys: v1alpha2.SecretReferenceKeys{
+			ClientID:     secretRefClientIDKey,
+			ClientSecret: src.Spec.SecretRef.Key,
+		},
 	}
 	dst.Spec.SectorIdentifier = src.Spec.SectorIdentifier
 	dst.Spec.Public = src.Spec.Public
@@ -47,15 +56,19 @@ func (dst *OIDCClient) ConvertFrom(srcRaw conversion.Hub) error {
 	src := srcRaw.(*v1alpha2.OIDCClient)
 
 	dst.ObjectMeta = *src.ObjectMeta.DeepCopy()
-	oidcClientID := dst.ObjectMeta.Annotations["authelia.milas.dev/oidc-client-id"]
-	delete(dst.ObjectMeta.Annotations, "authelia.milas.dev/oidc-client-id")
+	oidcClientID := dst.ObjectMeta.Annotations["conversion.authelia.milas.dev/oidc-client-id"]
+	delete(dst.ObjectMeta.Annotations, "conversion.authelia.milas.dev/oidc-client-id")
+
+	if src.Spec.SecretRef.Keys.ClientID != "" {
+		dst.ObjectMeta.Annotations["conversion.authelia.milas.dev/secret-ref-client-id"] = src.Spec.SecretRef.Keys.ClientID
+	}
 
 	dst.Spec.ID = oidcClientID
 	dst.Spec.Description = src.Spec.Description
 	dst.Spec.SecretRef = SecretReference{
 		Namespace: src.Spec.SecretRef.Namespace,
 		Name:      src.Spec.SecretRef.Name,
-		Key:       src.Spec.SecretRef.Key,
+		Key:       src.Spec.SecretRef.Keys.ClientSecret,
 	}
 	dst.Spec.SectorIdentifier = src.Spec.SectorIdentifier
 	dst.Spec.Public = src.Spec.Public

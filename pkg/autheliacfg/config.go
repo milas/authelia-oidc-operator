@@ -2,6 +2,7 @@ package autheliacfg
 
 import (
 	"fmt"
+	autheliav1alpha2 "github.com/milas/authelia-oidc-operator/api/v1alpha2"
 
 	"gopkg.in/yaml.v3"
 	v1 "k8s.io/api/core/v1"
@@ -91,7 +92,7 @@ type OIDCClient struct {
 
 func NewOIDC(
 	provider *autheliav1alpha1.OIDCProvider,
-	clients []autheliav1alpha1.OIDCClient,
+	clients []autheliav1alpha2.OIDCClient,
 	secrets []v1.Secret,
 ) (OIDC, error) {
 	cfgClients := make([]OIDCClient, len(clients))
@@ -124,16 +125,21 @@ func NewCORS(in autheliav1alpha1.CORS) CORS {
 	}
 }
 
-func NewOIDCClient(in *autheliav1alpha1.OIDCClient, secrets []v1.Secret) (OIDCClient, error) {
-	clientSecret, err := SecretRefToStringValue(in, in.Spec.SecretRef, secrets)
+func NewOIDCClient(in *autheliav1alpha2.OIDCClient, secrets []v1.Secret) (OIDCClient, error) {
+	credentials, err := ResolveCredentials(*in, secrets)
 	if err != nil {
-		return OIDCClient{}, fmt.Errorf("could not get client secret for %s: %v", in.Spec.ID, err)
+		return OIDCClient{}, fmt.Errorf(
+			"could not get credentials for %s/%s: %v",
+			in.GetNamespace(),
+			in.GetName(),
+			err,
+		)
 	}
 
 	c := OIDCClient{
-		ID:                           in.Spec.ID,
+		ID:                           credentials.ClientID,
 		Description:                  in.Spec.Description,
-		Secret:                       clientSecret,
+		Secret:                       credentials.ClientSecret,
 		SectorIdentifier:             in.Spec.SectorIdentifier,
 		Public:                       in.Spec.Public,
 		AuthorizationPolicy:          string(in.Spec.AuthorizationPolicy),

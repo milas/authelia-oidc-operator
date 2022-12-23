@@ -199,9 +199,8 @@ spec:
                 - two_factor
                 type: string
               description:
-                description: "Description is a friendly name shown for the client
-                  in the UI. \n If not specified, will default to the same as the
-                  ID."
+                description: Description is a friendly name shown for the client in
+                  the UI.
                 type: string
               grant_types:
                 description: "GrantTypes this client can return. \n It is recommended
@@ -216,11 +215,6 @@ spec:
                   - client_credentials
                   type: string
                 type: array
-              id:
-                description: "ID is the Client ID for this client. \n It must exactly
-                  match the Client ID configured in the application consuming this
-                  client."
-                type: string
               preconfigured_consent_duration:
                 type: string
               public:
@@ -273,14 +267,18 @@ spec:
                   the shared secret between Authelia and the application consuming
                   this client in the specified key.
                 properties:
-                  key:
-                    type: string
+                  fields:
+                    properties:
+                      client_id:
+                        type: string
+                      client_secret:
+                        type: string
+                    type: object
                   name:
                     type: string
                   namespace:
                     type: string
                 required:
-                - key
                 - name
                 type: object
               sector_identifier:
@@ -293,7 +291,6 @@ spec:
                 - RS256
                 type: string
             required:
-            - id
             - redirect_uris
             type: object
           status:

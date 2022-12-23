@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	autheliav1alpha2 "github.com/milas/authelia-oidc-operator/api/v1alpha2"
 	"golang.org/x/sync/errgroup"
 	"strings"
 
@@ -73,7 +74,7 @@ func (r *OIDCProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	// TODO(milas): ingress-nginx sets up a special lister to handle "indexing"
 	// 	by annotation - listing across all namespaces is not great
-	var oidcClientList autheliav1alpha1.OIDCClientList
+	var oidcClientList autheliav1alpha2.OIDCClientList
 	if err := r.Client.List(ctx, &oidcClientList); err != nil {
 		return ctrl.Result{}, err
 	}
@@ -178,7 +179,7 @@ func (r *OIDCProviderReconciler) providerForClient(obj client.Object) *client.Ob
 func (r *OIDCProviderReconciler) fetchSecrets(
 	ctx context.Context,
 	_ *autheliav1alpha1.OIDCProvider,
-	clients []autheliav1alpha1.OIDCClient,
+	clients []autheliav1alpha2.OIDCClient,
 ) ([]v1.Secret, error) {
 	var eg errgroup.Group
 	secrets := make([]v1.Secret, len(clients))
@@ -203,7 +204,7 @@ func (r *OIDCProviderReconciler) fetchSecrets(
 	return secrets, nil
 }
 
-func namespaceForSecretRef(obj client.Object, ref autheliav1alpha1.SecretReference) string {
+func namespaceForSecretRef(obj client.Object, ref autheliav1alpha2.SecretReference) string {
 	if ref.Namespace != "" {
 		return ref.Namespace
 	}

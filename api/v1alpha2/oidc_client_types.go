@@ -22,15 +22,7 @@ import (
 
 // OIDCClientSpec defines the desired state of OIDCClient
 type OIDCClientSpec struct {
-	// ID is the Client ID for this client.
-	//
-	// It must exactly match the Client ID configured in the application
-	// consuming this client.
-	ID string `json:"id"`
-
 	// Description is a friendly name shown for the client in the UI.
-	//
-	// If not specified, will default to the same as the ID.
 	//
 	// +optional
 	Description string `json:"description,omitempty"`

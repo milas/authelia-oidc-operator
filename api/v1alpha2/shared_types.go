@@ -5,5 +5,11 @@ type SecretReference struct {
 
 	Name string `json:"name"`
 
-	Key string `json:"key"`
+	Keys SecretReferenceKeys `json:"fields,omitempty"`
+}
+
+type SecretReferenceKeys struct {
+	ClientID string `json:"client_id,omitempty"`
+
+	ClientSecret string `json:"client_secret,omitempty"`
 }
