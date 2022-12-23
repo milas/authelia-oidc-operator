@@ -20,12 +20,12 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"golang.org/x/sync/errgroup"
 	"strings"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -180,20 +180,27 @@ func (r *OIDCProviderReconciler) fetchSecrets(
 	_ *autheliav1alpha1.OIDCProvider,
 	clients []autheliav1alpha1.OIDCClient,
 ) ([]v1.Secret, error) {
-	var secretListOpts []client.ListOption
-	for _, c := range clients {
-		secretRef := c.Spec.SecretRef
-		secretListOpts = append(secretListOpts, &client.ListOptions{
-			FieldSelector: fields.OneTermEqualSelector(metav1.ObjectNameField, secretRef.Name),
-			Namespace:     namespaceForSecretRef(&c, secretRef),
+	var eg errgroup.Group
+	secrets := make([]v1.Secret, len(clients))
+	for i, c := range clients {
+		i := i
+		secretKey := client.ObjectKey{
+			Namespace: namespaceForSecretRef(&c, c.Spec.SecretRef),
+			Name:      c.Spec.SecretRef.Name,
+		}
+		eg.Go(func() error {
+			if err := r.Client.Get(ctx, secretKey, &secrets[i]); err != nil {
+				return err
+			}
+			return nil
 		})
 	}
 
-	var secrets v1.SecretList
-	if err := r.Client.List(ctx, &secrets, secretListOpts...); err != nil {
+	if err := eg.Wait(); err != nil {
 		return nil, err
 	}
-	return secrets.Items, nil
+
+	return secrets, nil
 }
 
 func namespaceForSecretRef(obj client.Object, ref autheliav1alpha1.SecretReference) string {
