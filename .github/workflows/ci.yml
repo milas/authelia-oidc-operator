@@ -1,16 +1,17 @@
-name: Create and publish a Docker image
+name: CI
 
 on:
   push:
     branches: ['main']
+    tags: ['v*']
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push-image:
-    runs-on: ubuntu-latest
+  image:
+    runs-on: ubuntu-22.04
     permissions:
       contents: read
       packages: write
@@ -42,4 +43,7 @@ jobs:
           pull: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          provenance: true
           platforms: linux/arm64,linux/amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
