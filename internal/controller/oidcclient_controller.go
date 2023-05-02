@@ -14,17 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controllers
+package controller
 
 import (
 	"context"
-
-	autheliav1alpha2 "github.com/milas/authelia-oidc-operator/api/v1alpha2"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+
+	autheliav1alpha2 "github.com/milas/authelia-oidc-operator/api/v1alpha2"
 )
 
 // OIDCClientReconciler reconciles a OIDCClient object
@@ -45,9 +45,11 @@ type OIDCClientReconciler struct {
 // the user.
 //
 // For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.12.1/pkg/reconcile
+// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.14.4/pkg/reconcile
 func (r *OIDCClientReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
+
+	// TODO(user): your logic here
 
 	return ctrl.Result{}, nil
 }

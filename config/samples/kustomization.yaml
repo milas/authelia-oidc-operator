@@ -1,0 +1,6 @@
+## Append samples of your project ##
+resources:
+- authelia_v1alpha1_oidcprovider.yaml
+- authelia_v1alpha1_oidcclient.yaml
+- authelia_v1alpha2_oidcclient.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples

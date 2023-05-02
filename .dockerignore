@@ -5,8 +5,8 @@
 
 !./main.go
 !./api/
-!./controllers/
-!./pkg/
+!./cmd/
+!./internal/
 
 bin/
 testbin/

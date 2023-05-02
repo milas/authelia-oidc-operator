@@ -1,13 +1,12 @@
 apiVersion: authelia.milas.dev/v1alpha1
 kind: OIDCProvider
 metadata:
+  labels:
+    app.kubernetes.io/name: oidcprovider
+    app.kubernetes.io/instance: oidcprovider-sample
+    app.kubernetes.io/part-of: authelia-oidc-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: authelia-oidc-operator
   name: oidcprovider-sample
 spec:
-  cors:
-    endpoints:
-      - authorization
-      - token
-      - revocation
-      - introspection
-    allowed_origins:
-      - https://example.com
+  # TODO(user): Add fields here

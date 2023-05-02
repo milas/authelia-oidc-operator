@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controllers
+package controller
 
 import (
 	"bytes"
@@ -38,7 +38,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	autheliav1alpha1 "github.com/milas/authelia-oidc-operator/api/v1alpha1"
-	"github.com/milas/authelia-oidc-operator/pkg/autheliacfg"
+	"github.com/milas/authelia-oidc-operator/internal/autheliacfg"
 )
 
 // OIDCProviderReconciler reconciles a OIDCProvider object
@@ -136,8 +136,10 @@ func (r *OIDCProviderReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	secretNameExtractFunc := func(obj client.Object) []string {
 		return []string{obj.GetName()}
 	}
-	if err := mgr.GetFieldIndexer().IndexField(context.TODO(), &v1.Secret{}, metav1.ObjectNameField,
-		secretNameExtractFunc); err != nil {
+	if err := mgr.GetFieldIndexer().IndexField(
+		context.TODO(), &v1.Secret{}, metav1.ObjectNameField,
+		secretNameExtractFunc,
+	); err != nil {
 		return fmt.Errorf("failed to create index for Secret on field %s: %v", metav1.ObjectNameField, err)
 	}
 
@@ -146,13 +148,16 @@ func (r *OIDCProviderReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(&v1.Secret{}).
 		Watches(
 			&source.Kind{Type: &autheliav1alpha1.OIDCClient{}},
-			handler.EnqueueRequestsFromMapFunc(func(object client.Object) []reconcile.Request {
-				providerKey := r.providerForClient(object)
-				if providerKey == nil {
-					return nil
-				}
-				return []reconcile.Request{{NamespacedName: *providerKey}}
-			})).
+			handler.EnqueueRequestsFromMapFunc(
+				func(object client.Object) []reconcile.Request {
+					providerKey := r.providerForClient(object)
+					if providerKey == nil {
+						return nil
+					}
+					return []reconcile.Request{{NamespacedName: *providerKey}}
+				},
+			),
+		).
 		Complete(r)
 }
 
@@ -191,12 +196,14 @@ func (r *OIDCProviderReconciler) fetchSecrets(
 			Namespace: namespaceForSecretRef(&c, c.Spec.SecretRef),
 			Name:      c.Spec.SecretRef.Name,
 		}
-		eg.Go(func() error {
-			if err := r.Client.Get(ctx, secretKey, &secrets[i]); err != nil {
-				return err
-			}
-			return nil
-		})
+		eg.Go(
+			func() error {
+				if err := r.Client.Get(ctx, secretKey, &secrets[i]); err != nil {
+					return err
+				}
+				return nil
+			},
+		)
 	}
 
 	if err := eg.Wait(); err != nil {

@@ -1,34 +1,12 @@
 apiVersion: authelia.milas.dev/v1alpha1
 kind: OIDCClient
 metadata:
+  labels:
+    app.kubernetes.io/name: oidcclient
+    app.kubernetes.io/instance: oidcclient-sample
+    app.kubernetes.io/part-of: authelia-oidc-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: authelia-oidc-operator
   name: oidcclient-sample
-  annotations:
-    authelia.milas.dev/oidc-provider: oidcprovider-sample
 spec:
-  id: myapp
-  description: My Application
-  secret_ref:
-    key: 'secret'
-    name: 'myapp-oidc'
-  sector_identifier: ''
-  public: false
-  authorization_policy: two_factor
-  preconfigured_consent_duration: 0s
-  audience: []
-  scopes:
-    - openid
-    - groups
-    - email
-    - profile
-  redirect_uris:
-    - https://oidc.example.com:8080/oauth2/callback
-  grant_types:
-    - refresh_token
-    - authorization_code
-  response_types:
-    - code
-  response_modes:
-    - form_post
-    - query
-    - fragment
-  userinfo_signing_algorithm: none
+  # TODO(user): Add fields here

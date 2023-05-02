@@ -19,7 +19,7 @@ using CRDs, which can live in the app namespace.
 ## Getting Started
 
 > ℹ️ There's currently no Helm chart available!
-> 
+>
 > This is using the default kubebuilder deployment setup currently.
 > Manual intervention _will_ be required to migrate to a Helm-based install in the future.
 
@@ -37,7 +37,7 @@ using CRDs, which can live in the app namespace.
 
 3. Create an `OIDCProvider`:
 
-    **`oidc_provider.yaml`**
+   **`oidc_provider.yaml`**
     ```yaml
     apiVersion: authelia.milas.dev/v1alpha1
     kind: OIDCProvider
@@ -54,7 +54,7 @@ using CRDs, which can live in the app namespace.
     ```
 4. Create an `OIDCClient`:
 
-    **`oidc_client.yaml`**
+   **`oidc_client.yaml`**
     ```yaml
     apiVersion: authelia.milas.dev/v1alpha1
     kind: OIDCClient
@@ -79,13 +79,13 @@ using CRDs, which can live in the app namespace.
     ```
 
 5. Modify Authelia Deployment to find OIDC config
-    > COMING SOON!
+   > COMING SOON!
 
 ### How it works
 This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/)
 
-It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/) 
-which provides a reconcile function responsible for synchronizing resources untile the desired state is reached on the cluster 
+It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/)
+which provides a reconcile function responsible for synchronizing resources untile the desired state is reached on the cluster
 
 **NOTE:** Run `make --help` for more information on all potential `make` targets
 
