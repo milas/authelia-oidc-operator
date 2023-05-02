@@ -2,6 +2,7 @@ package autheliacfg
 
 import (
 	"fmt"
+
 	autheliav1alpha2 "github.com/milas/authelia-oidc-operator/api/v1alpha2"
 
 	v1 "k8s.io/api/core/v1"

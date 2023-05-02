@@ -20,9 +20,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	autheliav1alpha2 "github.com/milas/authelia-oidc-operator/api/v1alpha2"
-	"golang.org/x/sync/errgroup"
 	"strings"
+
+	"golang.org/x/sync/errgroup"
+
+	autheliav1alpha2 "github.com/milas/authelia-oidc-operator/api/v1alpha2"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"

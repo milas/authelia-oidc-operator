@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	autheliav1alpha2 "github.com/milas/authelia-oidc-operator/api/v1alpha2"
+
 	"github.com/stretchr/testify/require"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -39,24 +41,26 @@ func TestMarshalConfig(t *testing.T) {
 		},
 	}
 
-	client := autheliav1alpha1.OIDCClient{
+	client := autheliav1alpha2.OIDCClient{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "other-ns",
 			Name:      "my-client",
 		},
-		Spec: autheliav1alpha1.OIDCClientSpec{
-			ID:          "myapp",
+		Spec: autheliav1alpha2.OIDCClientSpec{
 			Description: "My Application",
-			SecretRef: autheliav1alpha1.SecretReference{
+			SecretRef: autheliav1alpha2.SecretReference{
 				Name: "my-client-oidc",
-				Key:  "secret",
+				Keys: autheliav1alpha2.SecretReferenceKeys{
+					ClientID:     "client_id_key",
+					ClientSecret: "client_secret_key",
+				},
 			},
 			SectorIdentifier:             "",
 			Public:                       false,
-			AuthorizationPolicy:          autheliav1alpha1.AuthorizationPolicyTwoFactor,
+			AuthorizationPolicy:          autheliav1alpha2.AuthorizationPolicyTwoFactor,
 			PreconfiguredConsentDuration: metav1.Duration{},
 			Audience:                     nil,
-			Scopes: []autheliav1alpha1.Scope{
+			Scopes: []autheliav1alpha2.Scope{
 				"openid",
 				"groups",
 				"email",
@@ -65,14 +69,14 @@ func TestMarshalConfig(t *testing.T) {
 			RedirectURIs: []string{
 				"https://oidc.example.com:8080/oauth2/callback",
 			},
-			GrantTypes: []autheliav1alpha1.GrantType{
+			GrantTypes: []autheliav1alpha2.GrantType{
 				"refresh_token",
 				"authorization_code",
 			},
-			ResponseTypes: []autheliav1alpha1.ResponseType{
+			ResponseTypes: []autheliav1alpha2.ResponseType{
 				"code",
 			},
-			ResponseModes: []autheliav1alpha1.ResponseMode{
+			ResponseModes: []autheliav1alpha2.ResponseMode{
 				"form_post",
 				"query",
 				"fragment",
@@ -87,13 +91,14 @@ func TestMarshalConfig(t *testing.T) {
 			Name:      "my-client-oidc",
 		},
 		Data: map[string][]byte{
-			"secret": []byte("this_is_a_secret"),
+			"client_id_key":     []byte("myapp"),
+			"client_secret_key": []byte("this_is_a_secret"),
 		},
 	}
 
 	oidc, err := NewOIDC(
 		&provider,
-		[]autheliav1alpha1.OIDCClient{client},
+		[]autheliav1alpha2.OIDCClient{client},
 		[]v1.Secret{secret},
 	)
 	require.NoError(t, err, "Failed to create OIDC config")
@@ -104,8 +109,10 @@ func TestMarshalConfig(t *testing.T) {
 
 	expected := string(loadTestData(t, "oidc.yaml"))
 	actual := string(cfg)
-	require.YAMLEq(t, expected, actual,
-		"Marshaled config did not match expected output. Raw:\n%s", actual)
+	require.YAMLEq(
+		t, expected, actual,
+		"Marshaled config did not match expected output. Raw:\n%s", actual,
+	)
 }
 
 func loadTestData(t testing.TB, path ...string) []byte {

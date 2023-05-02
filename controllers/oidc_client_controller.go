@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"context"
+
 	autheliav1alpha2 "github.com/milas/authelia-oidc-operator/api/v1alpha2"
 
 	"k8s.io/apimachinery/pkg/runtime"

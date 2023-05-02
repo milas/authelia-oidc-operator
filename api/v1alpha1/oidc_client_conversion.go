@@ -1,8 +1,9 @@
 package v1alpha1
 
 import (
-	"github.com/milas/authelia-oidc-operator/api/v1alpha2"
 	"sigs.k8s.io/controller-runtime/pkg/conversion"
+
+	"github.com/milas/authelia-oidc-operator/api/v1alpha2"
 )
 
 var _ conversion.Convertible = &OIDCClient{}
