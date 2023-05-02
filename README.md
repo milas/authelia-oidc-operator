@@ -45,9 +45,10 @@ using CRDs, which can live in the app namespace.
       name: default
       namespace: authelia
     spec:
+      refresh_token_lifespan: '30d'
       cors:
         allowed_origins:
-          - https://example.com
+          - 'https://example.com'
     ```
     ```sh
     kubectl apply -f ./oidc_provider.yaml
@@ -56,7 +57,7 @@ using CRDs, which can live in the app namespace.
 
    **`oidc_client.yaml`**
     ```yaml
-    apiVersion: authelia.milas.dev/v1alpha1
+    apiVersion: authelia.milas.dev/v1alpha2
     kind: OIDCClient
     metadata:
       name: my-client
@@ -64,15 +65,16 @@ using CRDs, which can live in the app namespace.
       annotations:
         authelia.milas.dev/oidc-provider: authelia/default
     spec:
-      id: myapp
       description: My Application
       secret_ref:
-        key: 'OIDC_CLIENT_SECRET'
         name: 'my-app'
+        fields:
+          client_id: 'OIDC_CLIENT_ID'
+          client_secret: 'OIDC_CLIENT_SECRET'
       public: false
       authorization_policy: two_factor
       redirect_uris:
-        - https://oidc.example.com:8080/oauth2/callback
+        - 'https://example.com:8080/oauth2/callback'
     ```
     ```sh
     kubectl apply -f ./oidc_client.yaml

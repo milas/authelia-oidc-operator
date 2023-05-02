@@ -1,4 +1,4 @@
-apiVersion: authelia.milas.dev/v1alpha1
+apiVersion: authelia.milas.dev/v1alpha2
 kind: OIDCClient
 metadata:
   labels:
@@ -9,4 +9,13 @@ metadata:
     app.kubernetes.io/created-by: authelia-oidc-operator
   name: oidcclient-sample
 spec:
-  # TODO(user): Add fields here
+  description: My Application
+  secret_ref:
+    name: myapp-oidc
+    fields:
+      client_id: 'OIDC_CLIENT_ID'
+      client_secret: 'OIDC_CLIENT_SECRET'
+  public: false
+  authorization_policy: two_factor
+  redirect_uris:
+    - 'https://example.com:8080/oauth2/callback'
