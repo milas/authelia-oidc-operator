@@ -26,6 +26,8 @@ import (
 
 	autheliav1alpha2 "github.com/milas/authelia-oidc-operator/api/v1alpha2"
 
+	autheliav1alpha1 "github.com/milas/authelia-oidc-operator/api/v1alpha1"
+	"github.com/milas/authelia-oidc-operator/internal/autheliacfg"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -35,10 +37,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/source"
-
-	autheliav1alpha1 "github.com/milas/authelia-oidc-operator/api/v1alpha1"
-	"github.com/milas/authelia-oidc-operator/internal/autheliacfg"
 )
 
 // OIDCProviderReconciler reconciles a OIDCProvider object
@@ -147,9 +145,9 @@ func (r *OIDCProviderReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&autheliav1alpha1.OIDCProvider{}).
 		Owns(&v1.Secret{}).
 		Watches(
-			&source.Kind{Type: &autheliav1alpha1.OIDCClient{}},
+			&autheliav1alpha1.OIDCClient{},
 			handler.EnqueueRequestsFromMapFunc(
-				func(object client.Object) []reconcile.Request {
+				func(_ context.Context, object client.Object) []reconcile.Request {
 					providerKey := r.providerForClient(object)
 					if providerKey == nil {
 						return nil
