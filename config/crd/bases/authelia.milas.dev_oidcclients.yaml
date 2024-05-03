@@ -3,8 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.11.3
-  creationTimestamp: null
+    controller-gen.kubebuilder.io/version: v0.15.0
   name: oidcclients.authelia.milas.dev
 spec:
   group: authelia.milas.dev
@@ -31,14 +30,19 @@ spec:
         description: OIDCClient is the Schema for the oidcclients API
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
             type: string
           metadata:
             type: object
@@ -56,14 +60,19 @@ spec:
                 - two_factor
                 type: string
               description:
-                description: "Description is a friendly name shown for the client
-                  in the UI. \n If not specified, will default to the same as the
-                  ID."
+                description: |-
+                  Description is a friendly name shown for the client in the UI.
+
+
+                  If not specified, will default to the same as the ID.
                 type: string
               grant_types:
-                description: "GrantTypes this client can return. \n It is recommended
-                  that this isn’t configured at this time unless you know what you’re
-                  doing."
+                description: |-
+                  GrantTypes this client can return.
+
+
+                  It is recommended that this isn’t configured at this time unless you
+                  know what you’re doing.
                 items:
                   enum:
                   - implicit
@@ -74,9 +83,12 @@ spec:
                   type: string
                 type: array
               id:
-                description: "ID is the Client ID for this client. \n It must exactly
-                  match the Client ID configured in the application consuming this
-                  client."
+                description: |-
+                  ID is the Client ID for this client.
+
+
+                  It must exactly match the Client ID configured in the application
+                  consuming this client.
                 type: string
               preconfigured_consent_duration:
                 type: string
@@ -90,9 +102,12 @@ spec:
                 minItems: 1
                 type: array
               response_modes:
-                description: "ResponseModes this client can return. \n It is recommended
-                  that this isn’t configured at this time unless you know what you’re
-                  doing."
+                description: |-
+                  ResponseModes this client can return.
+
+
+                  It is recommended that this isn’t configured at this time unless you
+                  know what you’re doing.
                 items:
                   enum:
                   - form_post
@@ -101,9 +116,12 @@ spec:
                   type: string
                 type: array
               response_types:
-                description: "ResponseTypes this client can return. \n It is recommended
-                  that this isn’t configured at this time unless you know what you’re
-                  doing."
+                description: |-
+                  ResponseTypes this client can return.
+
+
+                  It is recommended that this isn’t configured at this time unless you
+                  know what you’re doing.
                 items:
                   enum:
                   - code
@@ -115,7 +133,11 @@ spec:
                   type: string
                 type: array
               scopes:
-                description: "Scopes to allow the client to consume. \n See: https://www.authelia.com/integration/openid-connect/introduction/#scope-definitions"
+                description: |-
+                  Scopes to allow the client to consume.
+
+
+                  See: https://www.authelia.com/integration/openid-connect/introduction/#scope-definitions
                 items:
                   enum:
                   - openid
@@ -126,9 +148,10 @@ spec:
                   type: string
                 type: array
               secret_ref:
-                description: SecretRef refers to a Kubernetes v1.Secret that contains
-                  the shared secret between Authelia and the application consuming
-                  this client in the specified key.
+                description: |-
+                  SecretRef refers to a Kubernetes v1.Secret that contains the shared
+                  secret between Authelia and the application consuming this client in
+                  the specified key.
                 properties:
                   key:
                     type: string
@@ -174,14 +197,19 @@ spec:
         description: OIDCClient is the Schema for the oidcclients API
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
             type: string
           metadata:
             type: object
@@ -198,14 +226,24 @@ spec:
                 - one_factor
                 - two_factor
                 type: string
+              consent_mode:
+                description: |-
+                  ConsentMode determines how the user is prompted before allow access.
+
+
+                  // +kubebuilder:validation:Enum=auto;explicit;implicit;pre-configured
+                type: string
               description:
                 description: Description is a friendly name shown for the client in
                   the UI.
                 type: string
               grant_types:
-                description: "GrantTypes this client can return. \n It is recommended
-                  that this isn’t configured at this time unless you know what you’re
-                  doing."
+                description: |-
+                  GrantTypes this client can return.
+
+
+                  It is recommended that this isn’t configured at this time unless you
+                  know what you’re doing.
                 items:
                   enum:
                   - implicit
@@ -227,9 +265,12 @@ spec:
                 minItems: 1
                 type: array
               response_modes:
-                description: "ResponseModes this client can return. \n It is recommended
-                  that this isn’t configured at this time unless you know what you’re
-                  doing."
+                description: |-
+                  ResponseModes this client can return.
+
+
+                  It is recommended that this isn’t configured at this time unless you
+                  know what you’re doing.
                 items:
                   enum:
                   - form_post
@@ -238,9 +279,12 @@ spec:
                   type: string
                 type: array
               response_types:
-                description: "ResponseTypes this client can return. \n It is recommended
-                  that this isn’t configured at this time unless you know what you’re
-                  doing."
+                description: |-
+                  ResponseTypes this client can return.
+
+
+                  It is recommended that this isn’t configured at this time unless you
+                  know what you’re doing.
                 items:
                   enum:
                   - code
@@ -252,7 +296,11 @@ spec:
                   type: string
                 type: array
               scopes:
-                description: "Scopes to allow the client to consume. \n See: https://www.authelia.com/integration/openid-connect/introduction/#scope-definitions"
+                description: |-
+                  Scopes to allow the client to consume.
+
+
+                  See: https://www.authelia.com/integration/openid-connect/introduction/#scope-definitions
                 items:
                   enum:
                   - openid
@@ -263,9 +311,10 @@ spec:
                   type: string
                 type: array
               secret_ref:
-                description: SecretRef refers to a Kubernetes v1.Secret that contains
-                  the shared secret between Authelia and the application consuming
-                  this client in the specified key.
+                description: |-
+                  SecretRef refers to a Kubernetes v1.Secret that contains the shared
+                  secret between Authelia and the application consuming this client in
+                  the specified key.
                 properties:
                   fields:
                     properties:
@@ -283,6 +332,25 @@ spec:
                 type: object
               sector_identifier:
                 type: string
+              token_endpoint:
+                properties:
+                  auth_method:
+                    description: |-
+                      TokenEndpointAuthMethod is the client authentication mechanism used by the client for the token endpoint.
+
+
+                      https://www.authelia.com/configuration/identity-providers/openid-connect/clients/#token_endpoint_auth_method
+                      https://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint
+                    enum:
+                    - client_secret_basic
+                    - client_secret_post
+                    - client_secret_jwt
+                    - private_key_jwt
+                    - none
+                    type: string
+                required:
+                - auth_method
+                type: object
               userinfo_signing_algorithm:
                 description: UserinfoSigningAlgorithm is the algorithm used to sign
                   the userinfo endpoint responses.

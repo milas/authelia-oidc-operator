@@ -22,14 +22,12 @@ import (
 	"fmt"
 	"strings"
 
-	"golang.org/x/sync/errgroup"
-
-	autheliav1alpha2 "github.com/milas/authelia-oidc-operator/api/v1alpha2"
-
-	autheliav1alpha1 "github.com/milas/authelia-oidc-operator/api/v1alpha1"
+	"github.com/milas/authelia-oidc-operator/api/v1alpha1"
+	"github.com/milas/authelia-oidc-operator/api/v1alpha2"
 	"github.com/milas/authelia-oidc-operator/internal/autheliacfg"
-	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
+	"golang.org/x/sync/errgroup"
+	k8score "k8s.io/api/core/v1"
+	k8serr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -38,6 +36,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
+
+const OIDCProviderAnnotation = "authelia.milas.dev/oidc-provider"
+
+const OIDCConfigFilename = "authelia.oidc.yaml"
 
 // OIDCProviderReconciler reconciles a OIDCProvider object
 type OIDCProviderReconciler struct {
@@ -64,9 +66,9 @@ type OIDCProviderReconciler struct {
 func (r *OIDCProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	// logger := log.FromContext(ctx)
 
-	var provider autheliav1alpha1.OIDCProvider
+	var provider v1alpha1.OIDCProvider
 	if err := r.Client.Get(ctx, req.NamespacedName, &provider); err != nil {
-		if errors.IsNotFound(err) {
+		if k8serr.IsNotFound(err) {
 			// TODO(milas): tear down secret
 			return ctrl.Result{}, nil
 		}
@@ -74,7 +76,7 @@ func (r *OIDCProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	// TODO(milas): ingress-nginx sets up a special lister to handle "indexing"
 	// 	by annotation - listing across all namespaces is not great
-	var oidcClientList autheliav1alpha2.OIDCClientList
+	var oidcClientList v1alpha2.OIDCClientList
 	if err := r.Client.List(ctx, &oidcClientList); err != nil {
 		return ctrl.Result{}, err
 	}
@@ -98,18 +100,18 @@ func (r *OIDCProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	}
 
 	cfgSecretKey := client.ObjectKey{Namespace: req.Namespace, Name: fmt.Sprintf("%s-oidc", req.Name)}
-	var dest v1.Secret
+	var dest k8score.Secret
 	if err := r.Client.Get(ctx, cfgSecretKey, &dest); err != nil {
-		if !errors.IsNotFound(err) {
+		if !k8serr.IsNotFound(err) {
 			return ctrl.Result{}, err
 		}
-		dest = v1.Secret{
+		dest = k8score.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Namespace: cfgSecretKey.Namespace,
 				Name:      cfgSecretKey.Name,
 			},
 			Data: map[string][]byte{
-				autheliav1alpha1.OIDCConfigFilename: cfgYAML,
+				OIDCConfigFilename: cfgYAML,
 			},
 		}
 		if err := controllerutil.SetControllerReference(&provider, &dest, r.Scheme); err != nil {
@@ -118,8 +120,8 @@ func (r *OIDCProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if err := r.Client.Create(ctx, &dest); err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to create secret for %s: %v", req.NamespacedName, err)
 		}
-	} else if !bytes.Equal(dest.Data[autheliav1alpha1.OIDCConfigFilename], cfgYAML) {
-		dest.Data[autheliav1alpha1.OIDCConfigFilename] = cfgYAML
+	} else if !bytes.Equal(dest.Data[OIDCConfigFilename], cfgYAML) {
+		dest.Data[OIDCConfigFilename] = cfgYAML
 
 		if err := r.Client.Update(ctx, &dest); err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to update secret for %s: %v", req.NamespacedName, err)
@@ -135,17 +137,17 @@ func (r *OIDCProviderReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return []string{obj.GetName()}
 	}
 	if err := mgr.GetFieldIndexer().IndexField(
-		context.TODO(), &v1.Secret{}, metav1.ObjectNameField,
+		context.TODO(), &k8score.Secret{}, metav1.ObjectNameField,
 		secretNameExtractFunc,
 	); err != nil {
 		return fmt.Errorf("failed to create index for Secret on field %s: %v", metav1.ObjectNameField, err)
 	}
 
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&autheliav1alpha1.OIDCProvider{}).
-		Owns(&v1.Secret{}).
+		For(&v1alpha1.OIDCProvider{}).
+		Owns(&k8score.Secret{}).
 		Watches(
-			&autheliav1alpha1.OIDCClient{},
+			&v1alpha2.OIDCClient{},
 			handler.EnqueueRequestsFromMapFunc(
 				func(_ context.Context, object client.Object) []reconcile.Request {
 					providerKey := r.providerForClient(object)
@@ -160,7 +162,7 @@ func (r *OIDCProviderReconciler) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 func (r *OIDCProviderReconciler) providerForClient(obj client.Object) *client.ObjectKey {
-	provider := obj.GetAnnotations()[autheliav1alpha1.OIDCProviderAnnotation]
+	provider := obj.GetAnnotations()[OIDCProviderAnnotation]
 	if provider == "" {
 		return r.defaultOIDCProvider
 	}
@@ -183,11 +185,11 @@ func (r *OIDCProviderReconciler) providerForClient(obj client.Object) *client.Ob
 
 func (r *OIDCProviderReconciler) fetchSecrets(
 	ctx context.Context,
-	_ *autheliav1alpha1.OIDCProvider,
-	clients []autheliav1alpha2.OIDCClient,
-) ([]v1.Secret, error) {
+	_ *v1alpha1.OIDCProvider,
+	clients []v1alpha2.OIDCClient,
+) ([]k8score.Secret, error) {
 	var eg errgroup.Group
-	secrets := make([]v1.Secret, len(clients))
+	secrets := make([]k8score.Secret, len(clients))
 	for i, c := range clients {
 		i := i
 		secretKey := client.ObjectKey{
@@ -211,7 +213,7 @@ func (r *OIDCProviderReconciler) fetchSecrets(
 	return secrets, nil
 }
 
-func namespaceForSecretRef(obj client.Object, ref autheliav1alpha2.SecretReference) string {
+func namespaceForSecretRef(obj client.Object, ref v1alpha2.SecretReference) string {
 	if ref.Namespace != "" {
 		return ref.Namespace
 	}

@@ -3,12 +3,10 @@ package autheliacfg
 import (
 	"fmt"
 
-	autheliav1alpha2 "github.com/milas/authelia-oidc-operator/api/v1alpha2"
-
+	apiv1alpha1 "github.com/milas/authelia-oidc-operator/api/v1alpha1"
+	api "github.com/milas/authelia-oidc-operator/api/v1alpha2"
 	"gopkg.in/yaml.v3"
-	v1 "k8s.io/api/core/v1"
-
-	autheliav1alpha1 "github.com/milas/authelia-oidc-operator/api/v1alpha1"
+	k8score "k8s.io/api/core/v1"
 )
 
 func MarshalConfig(oidc OIDC) ([]byte, error) {
@@ -74,6 +72,8 @@ type OIDCClient struct {
 
 	AuthorizationPolicy string `yaml:"authorization_policy,omitempty"`
 
+	ConsentMode string `yaml:"consent_mode,omitempty"`
+
 	PreconfiguredConsentDuration Duration `yaml:"pre_configured_consent_duration,omitempty"`
 
 	Audience []string `yaml:"audience,omitempty"`
@@ -89,12 +89,14 @@ type OIDCClient struct {
 	ResponseModes []string `yaml:"response_modes,omitempty,flow"`
 
 	UserinfoSigningAlgorithm string `yaml:"userinfo_signing_algorithm,omitempty"`
+
+	TokenEndpointAuthMethod string `yaml:"token_endpoint_auth_method,omitempty"`
 }
 
 func NewOIDC(
-	provider *autheliav1alpha1.OIDCProvider,
-	clients []autheliav1alpha2.OIDCClient,
-	secrets []v1.Secret,
+	provider *apiv1alpha1.OIDCProvider,
+	clients []api.OIDCClient,
+	secrets []k8score.Secret,
 ) (OIDC, error) {
 	cfgClients := make([]OIDCClient, len(clients))
 	for i := range clients {
@@ -118,7 +120,7 @@ func NewOIDC(
 	return cfgProvider, nil
 }
 
-func NewCORS(in autheliav1alpha1.CORS) CORS {
+func NewCORS(in apiv1alpha1.CORS) CORS {
 	return CORS{
 		Endpoints:                            in.Endpoints,
 		AllowedOrigins:                       in.AllowedOrigins,
@@ -126,7 +128,7 @@ func NewCORS(in autheliav1alpha1.CORS) CORS {
 	}
 }
 
-func NewOIDCClient(in *autheliav1alpha2.OIDCClient, secrets []v1.Secret) (OIDCClient, error) {
+func NewOIDCClient(in *api.OIDCClient, secrets []k8score.Secret) (OIDCClient, error) {
 	credentials, err := ResolveCredentials(*in, secrets)
 	if err != nil {
 		return OIDCClient{}, fmt.Errorf(
@@ -141,6 +143,7 @@ func NewOIDCClient(in *autheliav1alpha2.OIDCClient, secrets []v1.Secret) (OIDCCl
 		ID:                           credentials.ClientID,
 		Description:                  in.Spec.Description,
 		Secret:                       credentials.ClientSecret,
+		ConsentMode:                  string(in.Spec.ConsentMode),
 		SectorIdentifier:             in.Spec.SectorIdentifier,
 		Public:                       in.Spec.Public,
 		AuthorizationPolicy:          string(in.Spec.AuthorizationPolicy),
@@ -148,6 +151,7 @@ func NewOIDCClient(in *autheliav1alpha2.OIDCClient, secrets []v1.Secret) (OIDCCl
 		Audience:                     in.Spec.Audience,
 		RedirectURIs:                 in.Spec.RedirectURIs,
 		UserinfoSigningAlgorithm:     in.Spec.UserinfoSigningAlgorithm,
+		TokenEndpointAuthMethod:      string(in.Spec.TokenEndpoint.AuthMethod),
 	}
 
 	c.Scopes = make([]string, len(in.Spec.Scopes))

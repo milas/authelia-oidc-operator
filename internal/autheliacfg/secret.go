@@ -3,9 +3,8 @@ package autheliacfg
 import (
 	"fmt"
 
-	autheliav1alpha2 "github.com/milas/authelia-oidc-operator/api/v1alpha2"
-
-	v1 "k8s.io/api/core/v1"
+	api "github.com/milas/authelia-oidc-operator/api/v1alpha2"
+	k8score "k8s.io/api/core/v1"
 )
 
 type OIDCCredentials struct {
@@ -14,8 +13,8 @@ type OIDCCredentials struct {
 }
 
 func ResolveCredentials(
-	client autheliav1alpha2.OIDCClient,
-	secrets []v1.Secret,
+	client api.OIDCClient,
+	secrets []k8score.Secret,
 ) (OIDCCredentials, error) {
 	ref := *client.Spec.SecretRef.DeepCopy()
 	if ref.Namespace == "" {
@@ -54,7 +53,7 @@ func SecretRefToValue(
 	namespace string,
 	name string,
 	key string,
-	secrets []v1.Secret,
+	secrets []k8score.Secret,
 ) ([]byte, error) {
 	for i := range secrets {
 		if secrets[i].Namespace != namespace || secrets[i].Name != name {
@@ -74,7 +73,7 @@ func SecretRefToStringValue(
 	namespace string,
 	name string,
 	key string,
-	secrets []v1.Secret,
+	secrets []k8score.Secret,
 ) (string, error) {
 	v, err := SecretRefToValue(namespace, name, key, secrets)
 	if err != nil {

@@ -34,6 +34,10 @@ type OIDCClientSpec struct {
 	// +optional
 	SecretRef SecretReference `json:"secret_ref,omitempty"`
 
+	ConsentMode ConsentMode `json:"consent_mode,omitempty"`
+
+	TokenEndpoint TokenEndpoint `json:"token_endpoint,omitempty"`
+
 	SectorIdentifier string `json:"sector_identifier,omitempty"`
 
 	// Public enables the public client type for this client.
@@ -151,3 +155,35 @@ type ResponseType string
 // +kubebuilder:validation:Enum=form_post;query;fragment
 
 type ResponseMode string
+
+type TokenEndpoint struct {
+	AuthMethod TokenEndpointAuthMethod `json:"auth_method"`
+}
+
+// TokenEndpointAuthMethod is the client authentication mechanism used by the client for the token endpoint.
+//
+// https://www.authelia.com/configuration/identity-providers/openid-connect/clients/#token_endpoint_auth_method
+// https://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint
+//
+// +kubebuilder:validation:Enum=client_secret_basic;client_secret_post;client_secret_jwt;private_key_jwt;none
+type TokenEndpointAuthMethod string
+
+const (
+	TokenEndpointAuthMethodClientSecretBasic TokenEndpointAuthMethod = "client_secret_basic"
+	TokenEndpointAuthMethodClientSecretPOST  TokenEndpointAuthMethod = "client_secret_post"
+	TokenEndpointAuthMethodClientSecretJWT   TokenEndpointAuthMethod = "client_secret_jwt"
+	TokenEndpointAuthMethodPrivateKeyJWT     TokenEndpointAuthMethod = "private_key_jwt"
+	TokenEndpointAuthMethodNone              TokenEndpointAuthMethod = "none"
+)
+
+// ConsentMode determines how the user is prompted before allow access.
+//
+// // +kubebuilder:validation:Enum=auto;explicit;implicit;pre-configured
+type ConsentMode string
+
+const (
+	ConsentModeAuto          = "auto"
+	ConsentModeExplicit      = "explicit"
+	ConsentModeImplicit      = "implicit"
+	ConsentModePreConfigured = "pre-configured"
+)

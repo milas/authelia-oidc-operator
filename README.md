@@ -73,6 +73,9 @@ using CRDs, which can live in the app namespace.
           client_secret: 'OIDC_CLIENT_SECRET'
       public: false
       authorization_policy: two_factor
+      consent_mode: implicit
+      token_endpoint:
+        auth_method: client_secret_post
       redirect_uris:
         - 'https://example.com:8080/oauth2/callback'
     ```

@@ -19,12 +19,11 @@ package controller
 import (
 	"context"
 
+	api "github.com/milas/authelia-oidc-operator/api/v1alpha2"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-
-	autheliav1alpha2 "github.com/milas/authelia-oidc-operator/api/v1alpha2"
 )
 
 // OIDCClientReconciler reconciles a OIDCClient object
@@ -57,6 +56,6 @@ func (r *OIDCClientReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 // SetupWithManager sets up the controller with the Manager.
 func (r *OIDCClientReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&autheliav1alpha2.OIDCClient{}).
+		For(&api.OIDCClient{}).
 		Complete(r)
 }

@@ -6,13 +6,11 @@ import (
 	"testing"
 	"time"
 
+	autheliav1alpha1 "github.com/milas/authelia-oidc-operator/api/v1alpha1"
 	autheliav1alpha2 "github.com/milas/authelia-oidc-operator/api/v1alpha2"
-
 	"github.com/stretchr/testify/require"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	autheliav1alpha1 "github.com/milas/authelia-oidc-operator/api/v1alpha1"
 )
 
 func TestMarshalConfig(t *testing.T) {
@@ -58,7 +56,8 @@ func TestMarshalConfig(t *testing.T) {
 			SectorIdentifier:             "",
 			Public:                       false,
 			AuthorizationPolicy:          autheliav1alpha2.AuthorizationPolicyTwoFactor,
-			PreconfiguredConsentDuration: metav1.Duration{},
+			ConsentMode:                  autheliav1alpha2.ConsentModeAuto,
+			PreconfiguredConsentDuration: metav1.Duration{Duration: 1 * time.Hour},
 			Audience:                     nil,
 			Scopes: []autheliav1alpha2.Scope{
 				"openid",
@@ -82,6 +81,9 @@ func TestMarshalConfig(t *testing.T) {
 				"fragment",
 			},
 			UserinfoSigningAlgorithm: "none",
+			TokenEndpoint: autheliav1alpha2.TokenEndpoint{
+				AuthMethod: "client_secret_post",
+			},
 		},
 	}
 
