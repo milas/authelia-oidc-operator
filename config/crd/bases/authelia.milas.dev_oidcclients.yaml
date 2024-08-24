@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.15.0
+    controller-gen.kubebuilder.io/version: v0.16.1
   name: oidcclients.authelia.milas.dev
 spec:
   group: authelia.milas.dev
@@ -63,13 +63,11 @@ spec:
                 description: |-
                   Description is a friendly name shown for the client in the UI.
 
-
                   If not specified, will default to the same as the ID.
                 type: string
               grant_types:
                 description: |-
                   GrantTypes this client can return.
-
 
                   It is recommended that this isn’t configured at this time unless you
                   know what you’re doing.
@@ -85,7 +83,6 @@ spec:
               id:
                 description: |-
                   ID is the Client ID for this client.
-
 
                   It must exactly match the Client ID configured in the application
                   consuming this client.
@@ -105,7 +102,6 @@ spec:
                 description: |-
                   ResponseModes this client can return.
 
-
                   It is recommended that this isn’t configured at this time unless you
                   know what you’re doing.
                 items:
@@ -118,7 +114,6 @@ spec:
               response_types:
                 description: |-
                   ResponseTypes this client can return.
-
 
                   It is recommended that this isn’t configured at this time unless you
                   know what you’re doing.
@@ -135,7 +130,6 @@ spec:
               scopes:
                 description: |-
                   Scopes to allow the client to consume.
-
 
                   See: https://www.authelia.com/integration/openid-connect/introduction/#scope-definitions
                 items:
@@ -230,7 +224,6 @@ spec:
                 description: |-
                   ConsentMode determines how the user is prompted before allow access.
 
-
                   // +kubebuilder:validation:Enum=auto;explicit;implicit;pre-configured
                 type: string
               description:
@@ -240,7 +233,6 @@ spec:
               grant_types:
                 description: |-
                   GrantTypes this client can return.
-
 
                   It is recommended that this isn’t configured at this time unless you
                   know what you’re doing.
@@ -268,7 +260,6 @@ spec:
                 description: |-
                   ResponseModes this client can return.
 
-
                   It is recommended that this isn’t configured at this time unless you
                   know what you’re doing.
                 items:
@@ -281,7 +272,6 @@ spec:
               response_types:
                 description: |-
                   ResponseTypes this client can return.
-
 
                   It is recommended that this isn’t configured at this time unless you
                   know what you’re doing.
@@ -298,7 +288,6 @@ spec:
               scopes:
                 description: |-
                   Scopes to allow the client to consume.
-
 
                   See: https://www.authelia.com/integration/openid-connect/introduction/#scope-definitions
                 items:
@@ -337,7 +326,6 @@ spec:
                   auth_method:
                     description: |-
                       TokenEndpointAuthMethod is the client authentication mechanism used by the client for the token endpoint.
-
 
                       https://www.authelia.com/configuration/identity-providers/openid-connect/clients/#token_endpoint_auth_method
                       https://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint

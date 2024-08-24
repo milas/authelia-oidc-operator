@@ -60,11 +60,11 @@ func (c CORS) IsZero() bool {
 }
 
 type OIDCClient struct {
-	ID string `yaml:"id"`
+	ClientID string `yaml:"client_id"`
 
-	Description string `yaml:"description,omitempty"`
+	ClientName string `yaml:"client_name,omitempty"`
 
-	Secret string `yaml:"secret,omitempty"`
+	ClientSecret string `yaml:"client_secret,omitempty"`
 
 	SectorIdentifier string `yaml:"sector_identifier,omitempty"`
 
@@ -140,9 +140,9 @@ func NewOIDCClient(in *api.OIDCClient, secrets []k8score.Secret) (OIDCClient, er
 	}
 
 	c := OIDCClient{
-		ID:                           credentials.ClientID,
-		Description:                  in.Spec.Description,
-		Secret:                       credentials.ClientSecret,
+		ClientID:                     credentials.ClientID,
+		ClientName:                   in.Spec.Description,
+		ClientSecret:                 credentials.ClientSecret,
 		ConsentMode:                  string(in.Spec.ConsentMode),
 		SectorIdentifier:             in.Spec.SectorIdentifier,
 		Public:                       in.Spec.Public,

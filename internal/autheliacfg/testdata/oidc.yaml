@@ -16,10 +16,10 @@ identity_providers:
         - https://example.com
 #      allowed_origins_from_client_redirect_uris: false
     clients:
-      - id: myapp
-        description: My Application
+      - client_id: myapp
+        client_secret: this_is_a_secret
+        client_name: My Application
         token_endpoint_auth_method: client_secret_post
-        secret: this_is_a_secret
         consent_mode: auto
 #        sector_identifier: ''
 #        public: false
