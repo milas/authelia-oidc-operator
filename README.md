@@ -78,13 +78,36 @@ using CRDs, which can live in the app namespace.
         auth_method: client_secret_post
       redirect_uris:
         - 'https://example.com:8080/oauth2/callback'
+      claims:
+        policy:
+          id_token: ['preferred_username']
     ```
     ```sh
     kubectl apply -f ./oidc_client.yaml
     ```
 
-5. Modify Authelia Deployment to find OIDC config
-   > COMING SOON!
+5. Modify Authelia Helm release's `values.yaml` to add the OIDC config:
+
+   ```yaml
+   pod:
+      extraVolumes:
+        - name: oidc
+          secret:
+            secretName: default-oidc
+            items:
+              - key: "authelia.oidc.yaml"
+                path: "authelia.oidc.yaml"
+
+      extraVolumeMounts:
+        - mountPath: /oidc/authelia.oidc.yaml
+          name: oidc
+          readOnly: true
+          subPath: authelia.oidc.yaml
+
+   configMap:
+      extraConfigs:
+        - '/oidc/authelia.oidc.yaml'
+   ```
 
 ### How it works
 This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/)
