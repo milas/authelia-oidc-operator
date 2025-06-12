@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.16.1
+    controller-gen.kubebuilder.io/version: v0.18.0
   name: oidcclients.authelia.milas.dev
 spec:
   group: authelia.milas.dev
@@ -220,6 +220,22 @@ spec:
                 - one_factor
                 - two_factor
                 type: string
+              claims:
+                description: Claims configuration for this client.
+                properties:
+                  name:
+                    description: PolicyName for shared/common config (defined on the
+                      provider).
+                    type: string
+                  policy:
+                    description: Policy for inline/one-off config.
+                    properties:
+                      id_token:
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                type: object
               consent_mode:
                 description: |-
                   ConsentMode determines how the user is prompted before allow access.

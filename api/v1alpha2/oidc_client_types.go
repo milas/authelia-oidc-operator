@@ -94,6 +94,22 @@ type OIDCClientSpec struct {
 	//
 	// +kubebuilder:validation:Enum=none;RS256
 	UserinfoSigningAlgorithm string `json:"userinfo_signing_algorithm,omitempty"`
+
+	// Claims configuration for this client.
+	//
+	// +optional
+	Claims OIDCClientClaims `json:"claims,omitempty"`
+}
+
+type OIDCClientClaims struct {
+	// PolicyName for shared/common config (defined on the provider).
+	//
+	// +optional
+	PolicyName string `json:"name"`
+	// Policy for inline/one-off config.
+	//
+	// +optional
+	Policy *OIDCClaimsPolicy `json:"policy"`
 }
 
 // AuthorizationPolicy for a client.

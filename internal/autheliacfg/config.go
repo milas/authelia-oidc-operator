@@ -2,6 +2,8 @@ package autheliacfg
 
 import (
 	"fmt"
+	"slices"
+	"strings"
 
 	apiv1alpha1 "github.com/milas/authelia-oidc-operator/api/v1alpha1"
 	api "github.com/milas/authelia-oidc-operator/api/v1alpha2"
@@ -40,9 +42,15 @@ type OIDC struct {
 
 	EnforcePKCE string `yaml:"enforce_pkce,omitempty"`
 
+	ClaimsPolicies map[string]OIDCClaimsPolicy `yaml:"claims_policies,omitempty"`
+
 	CORS CORS `yaml:"cors,omitempty"`
 
 	Clients []OIDCClient `yaml:"clients,omitempty"`
+}
+
+type OIDCClaimsPolicy struct {
+	IDToken []string `yaml:"id_token"`
 }
 
 type CORS struct {
@@ -91,6 +99,8 @@ type OIDCClient struct {
 	UserinfoSigningAlgorithm string `yaml:"userinfo_signing_algorithm,omitempty"`
 
 	TokenEndpointAuthMethod string `yaml:"token_endpoint_auth_method,omitempty"`
+
+	ClaimsPolicy string `yaml:"claims_policy,omitempty"`
 }
 
 func NewOIDC(
@@ -99,11 +109,15 @@ func NewOIDC(
 	secrets []k8score.Secret,
 ) (OIDC, error) {
 	cfgClients := make([]OIDCClient, len(clients))
+	claimsPolicies := make(map[string]OIDCClaimsPolicy)
 	for i := range clients {
-		if c, err := NewOIDCClient(&clients[i], secrets); err != nil {
+		if c, cp, err := NewOIDCClient(&clients[i], secrets); err != nil {
 			return OIDC{}, err
 		} else {
 			cfgClients[i] = c
+			if cp != nil {
+				claimsPolicies[c.ClaimsPolicy] = *cp
+			}
 		}
 	}
 
@@ -116,6 +130,7 @@ func NewOIDC(
 		EnforcePKCE:               provider.Spec.EnforcePKCE,
 		CORS:                      NewCORS(provider.Spec.CORS),
 		Clients:                   cfgClients,
+		ClaimsPolicies:            claimsPolicies,
 	}
 	return cfgProvider, nil
 }
@@ -128,15 +143,22 @@ func NewCORS(in apiv1alpha1.CORS) CORS {
 	}
 }
 
-func NewOIDCClient(in *api.OIDCClient, secrets []k8score.Secret) (OIDCClient, error) {
+func NewOIDCClient(in *api.OIDCClient, secrets []k8score.Secret) (OIDCClient, *OIDCClaimsPolicy, error) {
 	credentials, err := ResolveCredentials(*in, secrets)
 	if err != nil {
-		return OIDCClient{}, fmt.Errorf(
+		return OIDCClient{}, nil, fmt.Errorf(
 			"could not get credentials for %s/%s: %v",
 			in.GetNamespace(),
 			in.GetName(),
 			err,
 		)
+	}
+
+	claimsPolicyName := in.Spec.Claims.PolicyName
+	var inlineClaimsPolicy *OIDCClaimsPolicy
+	if cp := in.Spec.Claims.Policy; cp != nil {
+		claimsPolicyName = strings.Join([]string{"client", in.GetNamespace(), in.GetName()}, "_")
+		inlineClaimsPolicy = claimsPolicyFromAPI(cp)
 	}
 
 	c := OIDCClient{
@@ -152,6 +174,7 @@ func NewOIDCClient(in *api.OIDCClient, secrets []k8score.Secret) (OIDCClient, er
 		RedirectURIs:                 in.Spec.RedirectURIs,
 		UserinfoSigningAlgorithm:     in.Spec.UserinfoSigningAlgorithm,
 		TokenEndpointAuthMethod:      string(in.Spec.TokenEndpoint.AuthMethod),
+		ClaimsPolicy:                 claimsPolicyName,
 	}
 
 	c.Scopes = make([]string, len(in.Spec.Scopes))
@@ -174,5 +197,12 @@ func NewOIDCClient(in *api.OIDCClient, secrets []k8score.Secret) (OIDCClient, er
 		c.ResponseModes[i] = string(in.Spec.ResponseModes[i])
 	}
 
-	return c, nil
+	return c, inlineClaimsPolicy, nil
+}
+
+func claimsPolicyFromAPI(claims *api.OIDCClaimsPolicy) *OIDCClaimsPolicy {
+	ret := &OIDCClaimsPolicy{
+		IDToken: slices.Clone(claims.IDToken),
+	}
+	return ret
 }

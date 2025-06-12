@@ -13,3 +13,8 @@ type SecretReferenceKeys struct {
 
 	ClientSecret string `json:"client_secret,omitempty"`
 }
+
+type OIDCClaimsPolicy struct {
+	// +optional
+	IDToken []string `json:"id_token,omitempty"`
+}

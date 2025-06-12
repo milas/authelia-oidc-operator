@@ -4,6 +4,9 @@ identity_providers:
     authorize_code_lifespan: 1m
     id_token_lifespan: 1h
     refresh_token_lifespan: 1h30m
+    claims_policies:
+      client_other-ns_my-client:
+        id_token: ['preferred_username']
 #    enable_client_debug_messages: false
     enforce_pkce: public_clients_only
     cors:
@@ -43,3 +46,4 @@ identity_providers:
           - query
           - fragment
         userinfo_signing_algorithm: none
+        claims_policy: client_other-ns_my-client

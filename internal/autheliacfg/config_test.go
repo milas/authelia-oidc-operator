@@ -84,6 +84,11 @@ func TestMarshalConfig(t *testing.T) {
 			TokenEndpoint: autheliav1alpha2.TokenEndpoint{
 				AuthMethod: "client_secret_post",
 			},
+			Claims: autheliav1alpha2.OIDCClientClaims{
+				Policy: &autheliav1alpha2.OIDCClaimsPolicy{
+					IDToken: []string{"preferred_username"},
+				},
+			},
 		},
 	}
 

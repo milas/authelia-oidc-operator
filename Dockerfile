@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM --platform=${BUILDPLATFORM} golang:1.22 as builder
+FROM --platform=${BUILDPLATFORM} golang:1.24-alpine3.22 as builder
 ARG TARGETOS
 ARG TARGETARCH
 
@@ -32,7 +32,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM gcr.io/distroless/static:nonroot
+FROM gcr.io/distroless/static-debian12:nonroot
 WORKDIR /
 COPY --from=builder /workspace/manager .
 USER 65532:65532
