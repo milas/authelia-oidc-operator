@@ -14,6 +14,11 @@ import (
 )
 
 func TestMarshalConfig(t *testing.T) {
+	fixedSaltForTests = "DETERMINISTIC_FOR_TESTS"
+	t.Cleanup(func() {
+		fixedSaltForTests = ""
+	})
+
 	provider := autheliav1alpha1.OIDCProvider{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "my-ns",

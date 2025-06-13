@@ -72,6 +72,7 @@ func (r *OIDCProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request
 			// TODO(milas): tear down secret
 			return ctrl.Result{}, nil
 		}
+		return ctrl.Result{}, err
 	}
 
 	// TODO(milas): ingress-nginx sets up a special lister to handle "indexing"

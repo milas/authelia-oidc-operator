@@ -9,6 +9,9 @@ Manage [OIDC]() clients for [Authelia](https://www.authelia.com/) SSO using Kube
 - [ ] Helm chart
 - [ ] Status updates on CRDs
 
+## Compatibility
+* Authelia 4.39.x (other versions might work)
+
 ## Description
 Managing OIDC clients for Authelia in a Kubernetes cluster requires centralizing
 the config with (excellent!) default Helm chart.

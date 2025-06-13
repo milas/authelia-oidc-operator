@@ -2,6 +2,8 @@ package autheliacfg
 
 import (
 	"fmt"
+	"github.com/go-crypt/crypt/algorithm"
+	"github.com/go-crypt/crypt/algorithm/pbkdf2"
 	"slices"
 	"strings"
 
@@ -10,6 +12,8 @@ import (
 	"gopkg.in/yaml.v3"
 	k8score "k8s.io/api/core/v1"
 )
+
+var fixedSaltForTests string
 
 func MarshalConfig(oidc OIDC) ([]byte, error) {
 	var cfg struct {
@@ -120,6 +124,9 @@ func NewOIDC(
 			}
 		}
 	}
+	slices.SortFunc(cfgClients, func(a, b OIDCClient) int {
+		return strings.Compare(a.ClientID, b.ClientID)
+	})
 
 	cfgProvider := OIDC{
 		AccessTokenLifespan:       Duration(provider.Spec.AccessTokenLifespan.Duration),
@@ -161,10 +168,15 @@ func NewOIDCClient(in *api.OIDCClient, secrets []k8score.Secret) (OIDCClient, *O
 		inlineClaimsPolicy = claimsPolicyFromAPI(cp)
 	}
 
+	clientSecret, err := hashSecret(credentials.ClientSecret)
+	if err != nil {
+		return OIDCClient{}, nil, fmt.Errorf("could not hash secret for %s/%s: %v", in.GetNamespace(), in.GetName(), err)
+	}
+
 	c := OIDCClient{
 		ClientID:                     credentials.ClientID,
 		ClientName:                   in.Spec.Description,
-		ClientSecret:                 credentials.ClientSecret,
+		ClientSecret:                 clientSecret,
 		ConsentMode:                  string(in.Spec.ConsentMode),
 		SectorIdentifier:             in.Spec.SectorIdentifier,
 		Public:                       in.Spec.Public,
@@ -205,4 +217,21 @@ func claimsPolicyFromAPI(claims *api.OIDCClaimsPolicy) *OIDCClaimsPolicy {
 		IDToken: slices.Clone(claims.IDToken),
 	}
 	return ret
+}
+
+func hashSecret(v string) (string, error) {
+	hash, err := pbkdf2.New()
+	if err != nil {
+		return "", err
+	}
+	var digest algorithm.Digest
+	if fixedSaltForTests != "" {
+		digest, err = hash.HashWithSalt(v, []byte(fixedSaltForTests))
+	} else {
+		digest, err = hash.Hash(v)
+	}
+	if err != nil {
+		return "", err
+	}
+	return digest.String(), nil
 }
