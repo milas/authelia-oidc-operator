@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-crypt/crypt/algorithm"
 	autheliav1alpha1 "github.com/milas/authelia-oidc-operator/api/v1alpha1"
 	autheliav1alpha2 "github.com/milas/authelia-oidc-operator/api/v1alpha2"
 	"github.com/stretchr/testify/require"
@@ -14,11 +15,7 @@ import (
 )
 
 func TestMarshalConfig(t *testing.T) {
-	fixedSaltForTests = "DETERMINISTIC_FOR_TESTS"
-	t.Cleanup(func() {
-		fixedSaltForTests = ""
-	})
-
+	fixedSaltForTests := "_FAKE_SALT_TEST_"[:algorithm.SaltLengthDefault]
 	provider := autheliav1alpha1.OIDCProvider{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "my-ns",
@@ -48,6 +45,9 @@ func TestMarshalConfig(t *testing.T) {
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "other-ns",
 			Name:      "my-client",
+			Annotations: map[string]string{
+				"authelia.milas.dev/salt": fixedSaltForTests,
+			},
 		},
 		Spec: autheliav1alpha2.OIDCClientSpec{
 			Description: "My Application",
@@ -115,8 +115,7 @@ func TestMarshalConfig(t *testing.T) {
 	)
 	require.NoError(t, err, "Failed to create OIDC config")
 
-	// cfg, err := yaml.Marshal(oidc)
-	cfg, err := MarshalConfig(oidc)
+	cfg, err := MarshalOIDCConfig(oidc)
 	require.NoError(t, err, "Failed to marshal OIDC config as YAML")
 
 	expected := string(loadTestData(t, "oidc.yaml"))

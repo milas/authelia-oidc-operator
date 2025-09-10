@@ -1,28 +1,32 @@
 package autheliacfg
 
 import (
+	"encoding/base64"
+	"errors"
 	"fmt"
-	"github.com/go-crypt/crypt/algorithm"
-	"github.com/go-crypt/crypt/algorithm/pbkdf2"
 	"slices"
 	"strings"
 
+	"github.com/go-crypt/crypt/algorithm/pbkdf2"
 	apiv1alpha1 "github.com/milas/authelia-oidc-operator/api/v1alpha1"
 	api "github.com/milas/authelia-oidc-operator/api/v1alpha2"
 	"gopkg.in/yaml.v3"
 	k8score "k8s.io/api/core/v1"
 )
 
-var fixedSaltForTests string
+const SaltAnnotation = "authelia.milas.dev/salt"
 
-func MarshalConfig(oidc OIDC) ([]byte, error) {
-	var cfg struct {
-		IdentityProviders struct {
-			OIDC OIDC `yaml:"oidc"`
-		} `yaml:"identity_providers"`
+func MarshalOIDCConfig(oidc OIDC) ([]byte, error) {
+	cfg := Config{
+		IdentityProviders: IdentityProviders{
+			OIDC: &oidc,
+		},
 	}
-	cfg.IdentityProviders.OIDC = oidc
 	return yaml.Marshal(cfg)
+}
+
+type Config struct {
+	IdentityProviders IdentityProviders `yaml:"identity_providers"`
 }
 
 type IdentityProviders struct {
@@ -116,7 +120,7 @@ func NewOIDC(
 	claimsPolicies := make(map[string]OIDCClaimsPolicy)
 	for i := range clients {
 		if c, cp, err := NewOIDCClient(&clients[i], secrets); err != nil {
-			return OIDC{}, err
+			return OIDC{}, fmt.Errorf("creating client for %s/%s: %w", clients[i].GetNamespace(), clients[i].GetName(), err)
 		} else {
 			cfgClients[i] = c
 			if cp != nil {
@@ -161,6 +165,21 @@ func NewOIDCClient(in *api.OIDCClient, secrets []k8score.Secret) (OIDCClient, *O
 		)
 	}
 
+	var salt []byte
+	if saltVal := in.ObjectMeta.Annotations[SaltAnnotation]; saltVal == "" {
+		return OIDCClient{}, nil, errors.New("missing salt")
+	} else {
+		salt, err = base64.RawURLEncoding.DecodeString(saltVal)
+		if err != nil {
+			return OIDCClient{}, nil, fmt.Errorf("decoding salt: %w", err)
+		}
+	}
+
+	clientSecretHash, err := hashSecret(credentials.ClientSecret, salt)
+	if err != nil {
+		return OIDCClient{}, nil, fmt.Errorf("hashing client secret: %w", err)
+	}
+
 	claimsPolicyName := in.Spec.Claims.PolicyName
 	var inlineClaimsPolicy *OIDCClaimsPolicy
 	if cp := in.Spec.Claims.Policy; cp != nil {
@@ -168,15 +187,10 @@ func NewOIDCClient(in *api.OIDCClient, secrets []k8score.Secret) (OIDCClient, *O
 		inlineClaimsPolicy = claimsPolicyFromAPI(cp)
 	}
 
-	clientSecret, err := hashSecret(credentials.ClientSecret)
-	if err != nil {
-		return OIDCClient{}, nil, fmt.Errorf("could not hash secret for %s/%s: %v", in.GetNamespace(), in.GetName(), err)
-	}
-
 	c := OIDCClient{
 		ClientID:                     credentials.ClientID,
 		ClientName:                   in.Spec.Description,
-		ClientSecret:                 clientSecret,
+		ClientSecret:                 clientSecretHash,
 		ConsentMode:                  string(in.Spec.ConsentMode),
 		SectorIdentifier:             in.Spec.SectorIdentifier,
 		Public:                       in.Spec.Public,
@@ -219,17 +233,12 @@ func claimsPolicyFromAPI(claims *api.OIDCClaimsPolicy) *OIDCClaimsPolicy {
 	return ret
 }
 
-func hashSecret(v string) (string, error) {
+func hashSecret(v string, salt []byte) (string, error) {
 	hash, err := pbkdf2.New()
 	if err != nil {
 		return "", err
 	}
-	var digest algorithm.Digest
-	if fixedSaltForTests != "" {
-		digest, err = hash.HashWithSalt(v, []byte(fixedSaltForTests))
-	} else {
-		digest, err = hash.Hash(v)
-	}
+	digest, err := hash.HashWithSalt(v, salt)
 	if err != nil {
 		return "", err
 	}

@@ -17,15 +17,21 @@ limitations under the License.
 package controller
 
 import (
-	"bytes"
 	"context"
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
+	"io"
 	"strings"
 
+	"github.com/go-crypt/crypt/algorithm"
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/milas/authelia-oidc-operator/api/v1alpha1"
 	"github.com/milas/authelia-oidc-operator/api/v1alpha2"
 	"github.com/milas/authelia-oidc-operator/internal/autheliacfg"
 	"golang.org/x/sync/errgroup"
+	"gopkg.in/yaml.v3"
 	k8score "k8s.io/api/core/v1"
 	k8serr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -34,6 +40,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
@@ -64,7 +71,7 @@ type OIDCProviderReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.12.1/pkg/reconcile
 func (r *OIDCProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	// logger := log.FromContext(ctx)
+	logger := log.FromContext(ctx)
 
 	var provider v1alpha1.OIDCProvider
 	if err := r.Client.Get(ctx, req.NamespacedName, &provider); err != nil {
@@ -82,6 +89,22 @@ func (r *OIDCProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, err
 	}
 
+	for _, oidcClient := range oidcClientList.Items {
+		saltVal := oidcClient.ObjectMeta.Annotations[autheliacfg.SaltAnnotation]
+		if saltVal == "" {
+			salt, err := randBytes(algorithm.SaltLengthDefault)
+			if err != nil {
+				return ctrl.Result{}, fmt.Errorf("generating salt for %s: %w", req.NamespacedName, err)
+			}
+			saltVal = base64.RawURLEncoding.EncodeToString(salt)
+			oidcClient.ObjectMeta.Annotations[autheliacfg.SaltAnnotation] = saltVal
+
+			if err := r.Client.Update(ctx, &oidcClient); err != nil {
+				return ctrl.Result{}, fmt.Errorf("updating %s: %w", req.NamespacedName, err)
+			}
+		}
+	}
+
 	secrets, err := r.fetchSecrets(ctx, &provider, oidcClientList.Items)
 	if err != nil {
 		// TODO(milas): update status
@@ -94,19 +117,19 @@ func (r *OIDCProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, fmt.Errorf("failed to create oidc config for %s: %v", req.NamespacedName, err)
 	}
 
-	cfgYAML, err := autheliacfg.MarshalConfig(oidcCfg)
+	cfgYAML, err := autheliacfg.MarshalOIDCConfig(oidcCfg)
 	if err != nil {
 		// TODO(milas): update status
 		return ctrl.Result{}, fmt.Errorf("failed to marshal oidc yaml for %s: %v", req.NamespacedName, err)
 	}
 
 	cfgSecretKey := client.ObjectKey{Namespace: req.Namespace, Name: fmt.Sprintf("%s-oidc", req.Name)}
-	var dest k8score.Secret
-	if err := r.Client.Get(ctx, cfgSecretKey, &dest); err != nil {
+	var retSecret k8score.Secret
+	if err := r.Client.Get(ctx, cfgSecretKey, &retSecret); err != nil {
 		if !k8serr.IsNotFound(err) {
 			return ctrl.Result{}, err
 		}
-		dest = k8score.Secret{
+		retSecret = k8score.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Namespace: cfgSecretKey.Namespace,
 				Name:      cfgSecretKey.Name,
@@ -115,18 +138,30 @@ func (r *OIDCProviderReconciler) Reconcile(ctx context.Context, req ctrl.Request
 				OIDCConfigFilename: cfgYAML,
 			},
 		}
-		if err := controllerutil.SetControllerReference(&provider, &dest, r.Scheme); err != nil {
+		if err := controllerutil.SetControllerReference(&provider, &retSecret, r.Scheme); err != nil {
 			return ctrl.Result{}, nil
 		}
-		if err := r.Client.Create(ctx, &dest); err != nil {
+		if err := r.Client.Create(ctx, &retSecret); err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to create secret for %s: %v", req.NamespacedName, err)
 		}
-	} else if !bytes.Equal(dest.Data[OIDCConfigFilename], cfgYAML) {
-		dest.Data[OIDCConfigFilename] = cfgYAML
 
-		if err := r.Client.Update(ctx, &dest); err != nil {
-			return ctrl.Result{}, fmt.Errorf("failed to update secret for %s: %v", req.NamespacedName, err)
+		return ctrl.Result{}, nil
+	}
+
+	var existingCfg autheliacfg.Config
+	if err := yaml.Unmarshal(retSecret.Data[OIDCConfigFilename], &existingCfg); err != nil {
+		logger.Error(err, "failed to unmarshal existing config")
+	} else {
+		diff := cmp.Diff(*existingCfg.IdentityProviders.OIDC, oidcCfg, cmpopts.EquateEmpty())
+		if diff == "" {
+			return ctrl.Result{}, nil
 		}
+		logger.Info("drift detected", "diff", diff)
+	}
+
+	retSecret.Data[OIDCConfigFilename] = cfgYAML
+	if err := r.Client.Update(ctx, &retSecret); err != nil {
+		return ctrl.Result{}, fmt.Errorf("failed to update secret for %s: %v", req.NamespacedName, err)
 	}
 
 	return ctrl.Result{}, nil
@@ -219,4 +254,17 @@ func namespaceForSecretRef(obj client.Object, ref v1alpha2.SecretReference) stri
 		return ref.Namespace
 	}
 	return obj.GetNamespace()
+}
+
+// randBytes returns random arbitrary bytes with a length of n.
+//
+// from x/crypto/internal
+func randBytes(n int) (bytes []byte, err error) {
+	bytes = make([]byte, n)
+
+	if _, err = io.ReadFull(rand.Reader, bytes); err != nil {
+		return nil, err
+	}
+
+	return bytes, nil
 }

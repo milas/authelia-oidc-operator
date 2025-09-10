@@ -20,7 +20,7 @@ identity_providers:
 #      allowed_origins_from_client_redirect_uris: false
     clients:
       - client_id: myapp
-        client_secret: $pbkdf2-sha256$310000$REVURVJNSU5JU1RJQ19GT1JfVEVTVFM$TNAypMC1GFqlURLxt9D208gD7JWnodWSHMN/kSfWYw0
+        client_secret: $pbkdf2-sha256$310000$/FAKE/SALT/TEST/$lD0T2YX8RcgJxd2B98EAFqdpzSf1vbc0cnLngTHs/fo
         client_name: My Application
         token_endpoint_auth_method: client_secret_post
         consent_mode: auto
