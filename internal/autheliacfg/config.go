@@ -10,8 +10,8 @@ import (
 	"github.com/go-crypt/crypt/algorithm/pbkdf2"
 	apiv1alpha1 "github.com/milas/authelia-oidc-operator/api/v1alpha1"
 	api "github.com/milas/authelia-oidc-operator/api/v1alpha2"
-	"gopkg.in/yaml.v3"
 	k8score "k8s.io/api/core/v1"
+	"sigs.k8s.io/yaml"
 )
 
 const SaltAnnotation = "authelia.milas.dev/salt"
@@ -26,47 +26,47 @@ func MarshalOIDCConfig(oidc OIDC) ([]byte, error) {
 }
 
 type Config struct {
-	IdentityProviders IdentityProviders `yaml:"identity_providers"`
+	IdentityProviders IdentityProviders `json:"identity_providers"`
 }
 
 type IdentityProviders struct {
-	OIDC *OIDC `yaml:"oidc,omitempty"`
+	OIDC *OIDC `json:"oidc,omitempty"`
 }
 
 type OIDC struct {
-	// HMACSecret string `yaml:"hmac_secret"`
+	// HMACSecret string `json:"hmac_secret"`
 	//
-	// IssuerPrivateKey string `yaml:"issuer_private_key"`
+	// IssuerPrivateKey string `json:"issuer_private_key"`
 
-	AccessTokenLifespan Duration `yaml:"access_token_lifespan,omitempty"`
+	AccessTokenLifespan Duration `json:"access_token_lifespan,omitempty"`
 
-	AuthorizeCodeLifespan Duration `yaml:"authorize_code_lifespan,omitempty"`
+	AuthorizeCodeLifespan Duration `json:"authorize_code_lifespan,omitempty"`
 
-	IDTokenLifespan Duration `yaml:"id_token_lifespan,omitempty"`
+	IDTokenLifespan Duration `json:"id_token_lifespan,omitempty"`
 
-	RefreshTokenLifespan Duration `yaml:"refresh_token_lifespan,omitempty"`
+	RefreshTokenLifespan Duration `json:"refresh_token_lifespan,omitempty"`
 
-	EnableClientDebugMessages bool `yaml:"enable_client_debug_messages,omitempty"`
+	EnableClientDebugMessages bool `json:"enable_client_debug_messages,omitempty"`
 
-	EnforcePKCE string `yaml:"enforce_pkce,omitempty"`
+	EnforcePKCE string `json:"enforce_pkce,omitempty"`
 
-	ClaimsPolicies map[string]OIDCClaimsPolicy `yaml:"claims_policies,omitempty"`
+	ClaimsPolicies map[string]OIDCClaimsPolicy `json:"claims_policies,omitempty"`
 
-	CORS CORS `yaml:"cors,omitempty"`
+	CORS CORS `json:"cors,omitempty"`
 
-	Clients []OIDCClient `yaml:"clients,omitempty"`
+	Clients []OIDCClient `json:"clients,omitempty"`
 }
 
 type OIDCClaimsPolicy struct {
-	IDToken []string `yaml:"id_token"`
+	IDToken []string `json:"id_token"`
 }
 
 type CORS struct {
-	Endpoints []string `yaml:"endpoints,omitempty"`
+	Endpoints []string `json:"endpoints,omitempty"`
 
-	AllowedOrigins []string `yaml:"allowed_origins,omitempty"`
+	AllowedOrigins []string `json:"allowed_origins,omitempty"`
 
-	AllowedOriginsFromClientRedirectURIs bool `yaml:"allowed_origins_from_client_redirect_uris,omitempty"`
+	AllowedOriginsFromClientRedirectURIs bool `json:"allowed_origins_from_client_redirect_uris,omitempty"`
 }
 
 func (c CORS) IsZero() bool {
@@ -76,39 +76,39 @@ func (c CORS) IsZero() bool {
 }
 
 type OIDCClient struct {
-	ClientID string `yaml:"client_id"`
+	ClientID string `json:"client_id"`
 
-	ClientName string `yaml:"client_name,omitempty"`
+	ClientName string `json:"client_name,omitempty"`
 
-	ClientSecret string `yaml:"client_secret,omitempty"`
+	ClientSecret string `json:"client_secret,omitempty"`
 
-	SectorIdentifier string `yaml:"sector_identifier,omitempty"`
+	SectorIdentifier string `json:"sector_identifier,omitempty"`
 
-	Public bool `yaml:"public,omitempty"`
+	Public bool `json:"public,omitempty"`
 
-	AuthorizationPolicy string `yaml:"authorization_policy,omitempty"`
+	AuthorizationPolicy string `json:"authorization_policy,omitempty"`
 
-	ConsentMode string `yaml:"consent_mode,omitempty"`
+	ConsentMode string `json:"consent_mode,omitempty"`
 
-	PreconfiguredConsentDuration Duration `yaml:"pre_configured_consent_duration,omitempty"`
+	PreconfiguredConsentDuration Duration `json:"pre_configured_consent_duration,omitempty"`
 
-	Audience []string `yaml:"audience,omitempty"`
+	Audience []string `json:"audience,omitempty"`
 
-	Scopes []string `yaml:"scopes,omitempty,flow"`
+	Scopes []string `json:"scopes,omitempty,flow"`
 
-	RedirectURIs []string `yaml:"redirect_uris"`
+	RedirectURIs []string `json:"redirect_uris"`
 
-	GrantTypes []string `yaml:"grant_types,omitempty,flow"`
+	GrantTypes []string `json:"grant_types,omitempty,flow"`
 
-	ResponseTypes []string `yaml:"response_types,omitempty,flow"`
+	ResponseTypes []string `json:"response_types,omitempty,flow"`
 
-	ResponseModes []string `yaml:"response_modes,omitempty,flow"`
+	ResponseModes []string `json:"response_modes,omitempty,flow"`
 
-	UserinfoSigningAlgorithm string `yaml:"userinfo_signing_algorithm,omitempty"`
+	UserinfoSigningAlgorithm string `json:"userinfo_signing_algorithm,omitempty"`
 
-	TokenEndpointAuthMethod string `yaml:"token_endpoint_auth_method,omitempty"`
+	TokenEndpointAuthMethod string `json:"token_endpoint_auth_method,omitempty"`
 
-	ClaimsPolicy string `yaml:"claims_policy,omitempty"`
+	ClaimsPolicy string `json:"claims_policy,omitempty"`
 }
 
 func NewOIDC(

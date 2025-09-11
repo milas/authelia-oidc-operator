@@ -31,7 +31,6 @@ import (
 	"github.com/milas/authelia-oidc-operator/api/v1alpha2"
 	"github.com/milas/authelia-oidc-operator/internal/autheliacfg"
 	"golang.org/x/sync/errgroup"
-	"gopkg.in/yaml.v3"
 	k8score "k8s.io/api/core/v1"
 	k8serr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -42,6 +41,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/yaml"
 )
 
 const OIDCProviderAnnotation = "authelia.milas.dev/oidc-provider"
